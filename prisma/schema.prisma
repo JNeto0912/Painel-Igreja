@@ -1,0 +1,29 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Aviso {
+  id         Int      @id @default(autoincrement())
+  titulo     String
+  descricao  String?
+  imagemUrl  String
+  dataInicio DateTime
+  dataFim    DateTime
+  ordem      Int      @default(0)
+  ativo      Boolean  @default(true)
+  criadoEm  DateTime @default(now())
+}
+
+model Membro {
+  id             Int      @id @default(autoincrement())
+  nome           String
+  dataNascimento DateTime
+  fotoUrl        String?
+  ativo          Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+}
