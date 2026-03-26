@@ -19,20 +19,27 @@ export async function POST(req: Request) {
       );
     }
 
+    // Lê o arquivo em memória
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Envia para o Cloudinary usando upload_stream
     const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
+      const uploadStream = cloudinary.uploader.upload_stream(
         {
           folder: 'painel-igreja',
           resource_type: 'image',
         },
         (error, result) => {
-          if (error || !result) return reject(error);
+          if (error || !result) {
+            console.error('Cloudinary upload error:', error);
+            return reject(error);
+          }
           resolve(result as { secure_url: string });
         }
-      ).end(buffer);
+      );
+
+      uploadStream.end(buffer);
     });
 
     return NextResponse.json({ url: result.secure_url });
