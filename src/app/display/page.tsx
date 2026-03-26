@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import DisplayClient from './DisplayClient';
 
+export const dynamic = 'force-dynamic';
+
 type Aviso = {
   id: number;
   titulo: string;
