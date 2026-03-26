@@ -1,38 +1,53 @@
 import { prisma } from '@/lib/prisma';
 import DisplayClient from './DisplayClient';
 
-export const dynamic = 'force-dynamic';
+type Aviso = {
+  id: number;
+  titulo: string;
+  descricao: string | null;
+  imagemUrl: string;
+  dataInicio: Date;
+  dataFim: Date;
+  ordem: number;
+  ativo: boolean;
+};
+
+type Membro = {
+  id: number;
+  nome: string;
+  dataNascimento: Date;
+  fotoUrl: string | null;
+  ativo: boolean;
+};
+
+export const revalidate = 60;
 
 export default async function DisplayPage() {
-  const agora = new Date();
+  const hoje = new Date();
 
-  const avisos = await prisma.aviso.findMany({
+  const avisos: Aviso[] = await prisma.aviso.findMany({
     where: {
       ativo: true,
-      dataInicio: { lte: agora },
-      dataFim: { gte: agora },
+      dataInicio: { lte: hoje },
+      dataFim: { gte: hoje },
     },
     orderBy: { ordem: 'asc' },
-    select: {
-      id: true,
-      titulo: true,
-      descricao: true,
-      imagemUrl: true,
-    },
   });
 
-  const membros = await prisma.membro.findMany({
+  const membros: Membro[] = await prisma.membro.findMany({
     where: { ativo: true },
-    select: {
-      id: true,
-      nome: true,
-      dataNascimento: true,
-      fotoUrl: true,
-    },
+  });
+
+  const aniversariantes = membros.filter((m: Membro) => {
+    const nasc = new Date(m.dataNascimento);
+    return (
+      nasc.getDate() === hoje.getDate() &&
+      nasc.getMonth() === hoje.getMonth()
+    );
   });
 
   const slides = [
-    ...avisos.map(a => ({
+    ...avisos.map((a: Aviso) => ({
       tipo: 'aviso' as const,
       data: {
         id: a.id,
@@ -41,7 +56,7 @@ export default async function DisplayPage() {
         imagemUrl: a.imagemUrl,
       },
     })),
-    ...membros.map(m => ({
+    ...aniversariantes.map((m: Membro) => ({
       tipo: 'aniversario' as const,
       data: {
         id: m.id,
@@ -51,24 +66,6 @@ export default async function DisplayPage() {
       },
     })),
   ];
-
-  if (slides.length === 0) {
-    return (
-      <div style={{
-        width: '100vw',
-        height: '100vh',
-        background: '#000',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#fff',
-        fontSize: '2rem',
-        fontFamily: 'sans-serif',
-      }}>
-        Sem avisos no momento
-      </div>
-    );
-  }
 
   return <DisplayClient slides={slides} />;
 }
