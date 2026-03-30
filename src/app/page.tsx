@@ -29,6 +29,16 @@ export default function Home() {
         >
           Serviços dos Irmãos
         </Link>
+
+        {/* Divisor */}
+        <div className="border-t border-zinc-200 my-1" />
+
+        <Link
+          href="/servicos"
+          className="block text-center bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 rounded-lg transition-colors"
+        >
+          🔍 Buscar Serviços
+        </Link>
         <Link
           href="/display"
           className="block text-center bg-zinc-800 hover:bg-zinc-900 text-white font-semibold py-2 rounded-lg transition-colors"
