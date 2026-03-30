@@ -32,9 +32,7 @@ export default function UsuariosAdminPage() {
     }
   }
 
-  useEffect(() => {
-    carregar();
-  }, []);
+  useEffect(() => { carregar(); }, []);
 
   async function atualizarUsuario(id: number, data: Partial<Usuario>) {
     setSalvandoId(id);
@@ -45,39 +43,23 @@ export default function UsuariosAdminPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
-
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.error || 'Erro ao salvar');
-      }
-
+      if (!res.ok) throw new Error('Erro ao salvar');
       await carregar();
     } catch (e) {
-      setErro(
-        e instanceof Error ? e.message : 'Não foi possível atualizar.'
-      );
+      setErro(e instanceof Error ? e.message : 'Erro desconhecido');
     } finally {
       setSalvandoId(null);
     }
   }
 
   async function excluirUsuario(id: number) {
-    if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+    if (!confirm('Tem certeza?')) return;
     setSalvandoId(id);
-    setErro('');
     try {
-      const res = await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
-
-      if (!res.ok) {
-        const body = await res.json();
-        throw new Error(body.error || 'Erro ao excluir');
-      }
-
+      await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
       setUsuarios((prev) => prev.filter((u) => u.id !== id));
-    } catch (e) {
-      setErro(
-        e instanceof Error ? e.message : 'Não foi possível excluir.'
-      );
+    } catch {
+      setErro('Não foi possível excluir.');
     } finally {
       setSalvandoId(null);
     }
@@ -87,20 +69,11 @@ export default function UsuariosAdminPage() {
     <div className="min-h-screen bg-zinc-100 p-6">
       <div className="max-w-3xl mx-auto">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-zinc-800">
-            Usuários do Painel
-          </h1>
-          <Link
-            href="/admin"
-            className="text-sm text-blue-600 hover:text-blue-800"
-          >
+          <h1 className="text-2xl font-bold text-zinc-800">Usuários do Painel</h1>
+          <Link href="/admin" className="text-sm text-blue-600 hover:text-blue-800">
             ← Voltar ao painel
           </Link>
         </div>
-
-        <p className="text-zinc-500 text-sm mb-4">
-          Aprove cadastros e defina quem tem acesso de administrador.
-        </p>
 
         {erro && (
           <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3 mb-4">
@@ -109,30 +82,23 @@ export default function UsuariosAdminPage() {
         )}
 
         {carregando ? (
-          <p className="text-zinc-400 text-sm">Carregando usuários...</p>
+          <p className="text-zinc-400 text-sm">Carregando...</p>
         ) : usuarios.length === 0 ? (
-          <p className="text-zinc-400 text-sm">
-            Nenhum usuário cadastrado até o momento.
-          </p>
+          <p className="text-zinc-400 text-sm">Nenhum usuário cadastrado.</p>
         ) : (
           <div className="bg-white rounded-xl shadow divide-y divide-zinc-100">
             {usuarios.map((u) => (
-              <div
-                key={u.id}
-                className="px-4 py-3 flex items-center justify-between gap-3"
-              >
+              <div key={u.id} className="px-4 py-3 flex items-center justify-between gap-3">
                 <div>
                   <p className="font-semibold text-zinc-800">{u.login}</p>
                   <p className="text-xs text-zinc-500">{u.telefone}</p>
                   <p className="text-[11px] text-zinc-400 mt-0.5">
-                    Cadastrado em{' '}
                     {new Date(u.criadoEm).toLocaleString('pt-BR', {
                       dateStyle: 'short',
                       timeStyle: 'short',
                     })}
                   </p>
                 </div>
-
                 <div className="flex items-center gap-4">
                   <div className="flex flex-col gap-1 text-xs text-zinc-700">
                     <label className="flex items-center gap-1 cursor-pointer">
@@ -158,7 +124,6 @@ export default function UsuariosAdminPage() {
                       Admin
                     </label>
                   </div>
-
                   <button
                     onClick={() => excluirUsuario(u.id)}
                     disabled={salvandoId === u.id}
@@ -170,10 +135,6 @@ export default function UsuariosAdminPage() {
               </div>
             ))}
           </div>
-        )}
-
-        {salvandoId !== null && (
-          <p className="text-xs text-zinc-400 mt-3">Salvando alterações...</p>
         )}
       </div>
     </div>

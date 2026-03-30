@@ -1,21 +1,22 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const token =
-    request.cookies.get('next-auth.session-token')?.value ??
+  // Verifica se o cookie de sessão do NextAuth existe
+  const sessionToken =
+    request.cookies.get('next-auth.session-token')?.value ||
     request.cookies.get('__Secure-next-auth.session-token')?.value;
 
-  if (pathname.startsWith('/admin') && !token) {
-    const loginUrl = new URL('/login', request.url);
-    return NextResponse.redirect(loginUrl);
+  // Se tentar acessar /admin sem token, redireciona para /login
+  if (pathname.startsWith('/admin') && !sessionToken) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (pathname === '/login' && token) {
-    const adminUrl = new URL('/admin', request.url);
-    return NextResponse.redirect(adminUrl);
+  // Se já tem token e tenta acessar /login, redireciona para /admin
+  if (pathname === '/login' && sessionToken) {
+    return NextResponse.redirect(new URL('/admin', request.url));
   }
 
   return NextResponse.next();
