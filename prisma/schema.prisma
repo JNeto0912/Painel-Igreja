@@ -43,3 +43,21 @@ model Servico {
   ativo        Boolean     @default(true)
   criadoEm    DateTime    @default(now())
 }
+
+model VoluntarioArea {
+  id         Int          @id @default(autoincrement())
+  nome       String       @unique
+  voluntarios Voluntario[]
+}
+
+model Voluntario {
+  id        Int             @id @default(autoincrement())
+  nome      String
+  areaId    Int
+  area      VoluntarioArea  @relation(fields: [areaId], references: [id])
+  dons      String?         // ex: louvor, ensino, acolhimento, etc
+  telefone  String
+  email     String?
+  disponivel Boolean        @default(true)
+  criadoEm  DateTime       @default(now())
+}

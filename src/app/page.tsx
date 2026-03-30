@@ -30,6 +30,20 @@ export default function Home() {
           Serviços dos Irmãos
         </Link>
 
+        <Link
+          href="/voluntarios"
+          className="block text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 rounded-lg transition-colors"
+        >
+        🔹 Buscar Voluntários
+        </Link>
+
+        <Link
+          href="/admin/voluntarios"
+          className="block text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 rounded-lg transition-colors"
+          >   
+           Voluntários
+        </Link>
+
         {/* Divisor */}
         <div className="border-t border-zinc-200 my-1" />
 
