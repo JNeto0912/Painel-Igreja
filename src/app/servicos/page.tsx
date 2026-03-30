@@ -23,13 +23,11 @@ export default function PesquisaServicosPage() {
   const [carregando, setCarregando] = useState(false);
 
   useEffect(() => {
-    // carrega tipos ao abrir
     fetch('/api/tipos')
       .then((r) => r.json())
       .then(setTipos)
       .catch(() => setTipos([]));
 
-    // busca inicial (sem filtros)
     pesquisar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -50,10 +48,8 @@ export default function PesquisaServicosPage() {
     const digits = telefone.replace(/\D/g, '');
     if (digits.length < 10) return telefone;
     if (digits.length === 10) {
-      // fixo
       return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
     }
-    // celular
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   }
 
@@ -65,12 +61,35 @@ export default function PesquisaServicosPage() {
   return (
     <div className="min-h-screen bg-zinc-100 p-6">
       <div className="max-w-2xl mx-auto">
+
+        {/* Título */}
         <h1 className="text-2xl font-bold text-zinc-800 mb-1">
           Serviços dos Irmãos
         </h1>
-        <p className="text-zinc-500 text-sm mb-6">
+        <p className="text-zinc-500 text-sm mb-4">
           Encontre profissionais da nossa comunidade.
         </p>
+
+        {/* Aviso importante */}
+        <div className="bg-yellow-50 border border-yellow-300 rounded-xl p-4 mb-6">
+          <p className="text-yellow-800 font-semibold text-sm mb-2">
+            ⚠️ Aviso importante
+          </p>
+          <p className="text-yellow-700 text-sm mb-2">
+            Esta lista tem o objetivo de divulgar serviços oferecidos por membros e
+            frequentadores da igreja, facilitando o contato entre irmãos.
+          </p>
+          <p className="text-yellow-700 text-sm mb-2">
+            A igreja não realiza intermediação, não recebe qualquer tipo de comissão
+            e não se responsabiliza pela qualidade, prazos, valores ou resultados
+            dos serviços prestados.
+          </p>
+          <p className="text-yellow-700 text-sm">
+            Toda contratação é feita diretamente entre o irmão que contrata e o
+            prestador de serviço, sendo de responsabilidade exclusiva das partes
+            envolvidas.
+          </p>
+        </div>
 
         {/* Filtros */}
         <div className="bg-white rounded-xl shadow p-4 mb-6 flex flex-col gap-3">
