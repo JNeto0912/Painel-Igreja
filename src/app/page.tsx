@@ -32,6 +32,12 @@ export default function Home() {
         >
           Serviços dos Irmãos
         </Link>
+<Link
+  href="/voluntarios/inscricao"
+  className="block text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 rounded-lg transition-colors"
+>
+  Quero ser voluntário
+</Link>
 
         {/* Voluntariado */}
         <Link

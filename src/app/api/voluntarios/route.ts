@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// Lista voluntários (tela pública / admin reuso)
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const nome = searchParams.get('nome') || '';
@@ -25,20 +26,29 @@ export async function GET(req: Request) {
   return NextResponse.json(voluntarios);
 }
 
+// Inscrição / criação de voluntário
 export async function POST(req: Request) {
   const body = await req.json();
   const { nome, areaId, dons, telefone, email } = body;
 
+  if (!nome || !areaId || !telefone) {
+    return NextResponse.json(
+      { error: 'Nome, área e telefone são obrigatórios.' },
+      { status: 400 }
+    );
+  }
+
   const voluntario = await prisma.voluntario.create({
     data: {
-      nome,
+      nome: nome.trim(),
       area: { connect: { id: Number(areaId) } },
-      dons: dons || null,
-      telefone,
-      email: email || null,
+      dons: dons ? dons.trim() : null,
+      telefone: telefone.trim(),
+      email: email ? email.trim() : null,
+      disponivel: true,
     },
     include: { area: true },
   });
 
-  return NextResponse.json(voluntario);
+  return NextResponse.json(voluntario, { status: 201 });
 }
