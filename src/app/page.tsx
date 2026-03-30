@@ -31,13 +31,6 @@ export default function Home() {
         </Link>
 
         <Link
-          href="/voluntarios"
-          className="block text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 rounded-lg transition-colors"
-        >
-        🔹 Buscar Voluntários
-        </Link>
-
-        <Link
           href="/admin/voluntarios"
           className="block text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 rounded-lg transition-colors"
           >   
@@ -53,6 +46,13 @@ export default function Home() {
         >
           🔍 Buscar Serviços
         </Link>
+
+       <Link
+          href="/voluntarios"
+          className="block text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 rounded-lg transition-colors"
+        >
+        🔹 Buscar Voluntários
+        </Link>        
         <Link
           href="/display"
           className="block text-center bg-zinc-800 hover:bg-zinc-900 text-white font-semibold py-2 rounded-lg transition-colors"
