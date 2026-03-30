@@ -45,19 +45,29 @@ model Servico {
 }
 
 model VoluntarioArea {
-  id         Int          @id @default(autoincrement())
-  nome       String       @unique
+  id          Int          @id @default(autoincrement())
+  nome        String       @unique
   voluntarios Voluntario[]
 }
 
 model Voluntario {
-  id        Int             @id @default(autoincrement())
-  nome      String
-  areaId    Int
-  area      VoluntarioArea  @relation(fields: [areaId], references: [id])
-  dons      String?         // ex: louvor, ensino, acolhimento, etc
+  id         Int             @id @default(autoincrement())
+  nome       String
+  areaId     Int
+  area       VoluntarioArea  @relation(fields: [areaId], references: [id])
+  dons       String?
+  telefone   String
+  email      String?
+  disponivel Boolean         @default(true)
+  criadoEm   DateTime        @default(now())
+}
+
+model Usuario {
+  id        Int      @id @default(autoincrement())
+  login     String   @unique
+  senha     String
   telefone  String
-  email     String?
-  disponivel Boolean        @default(true)
-  criadoEm  DateTime       @default(now())
+  aprovado  Boolean  @default(false)
+  admin     Boolean  @default(false)
+  criadoEm DateTime @default(now())
 }

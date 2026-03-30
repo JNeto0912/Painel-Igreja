@@ -37,11 +37,20 @@ function LoginForm() {
               required
             />
           </div>
-          {erro && (
+
+          {erro === '1' && (
             <p className="text-red-500 text-sm text-center">
               Usuário ou senha inválidos.
             </p>
           )}
+          {erro === 'pendente' && (
+            <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3">
+              <p className="text-yellow-700 text-sm text-center">
+                Seu cadastro ainda está aguardando aprovação do administrador.
+              </p>
+            </div>
+          )}
+
           <button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition"
@@ -49,6 +58,15 @@ function LoginForm() {
             Entrar
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <a
+            href="/cadastro"
+            className="text-sm text-blue-600 hover:text-blue-800"
+          >
+            Não tem acesso? Solicite seu cadastro
+          </a>
+        </div>
       </div>
     </div>
   );

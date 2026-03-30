@@ -13,8 +13,10 @@ export async function POST(req: Request) {
   if (!nome || nome.trim() === '') {
     return NextResponse.json({ error: 'Nome obrigatório' }, { status: 400 });
   }
+
   const area = await prisma.voluntarioArea.create({
     data: { nome: nome.trim() },
   });
+
   return NextResponse.json(area);
 }
