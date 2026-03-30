@@ -18,6 +18,12 @@ export default function Home() {
           Gerenciar Membros
         </Link>
         <Link
+          href="/admin/tipos"
+          className="block text-center bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition-colors"
+        >
+          Tipos de Serviço
+        </Link>
+        <Link
           href="/admin/servicos"
           className="block text-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition-colors"
         >

@@ -1,35 +1,45 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-// LISTAR todos os serviços
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const nome = searchParams.get('nome') || '';
+  const tipoId = searchParams.get('tipoId') || '';
+
   const servicos = await prisma.servico.findMany({
-    orderBy: { criadoEm: 'asc' },
+    where: {
+      ativo: true,
+      ...(nome && {
+        nome: { contains: nome, mode: 'insensitive' },
+      }),
+      ...(tipoId && {
+        tipoId: Number(tipoId),
+      }),
+    },
+    include: {
+      tipo: true,
+    },
+    orderBy: { nome: 'asc' },
   });
+
   return NextResponse.json(servicos);
 }
 
-// CRIAR um novo serviço
 export async function POST(req: Request) {
   const body = await req.json();
-
-  const { nome, tipo, descricao, telefone } = body;
-
-  if (!nome || !tipo || !telefone) {
-    return NextResponse.json(
-      { error: 'Nome, tipo e telefone são obrigatórios.' },
-      { status: 400 }
-    );
-  }
+  const { nome, tipoId, descricao, telefone } = body;
 
   const servico = await prisma.servico.create({
     data: {
       nome,
-      tipo,
+      tipo: {
+        connect: { id: Number(tipoId) },
+      },
       descricao: descricao || null,
       telefone,
     },
+    include: { tipo: true },
   });
 
-  return NextResponse.json(servico, { status: 201 });
+  return NextResponse.json(servico);
 }

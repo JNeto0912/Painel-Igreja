@@ -27,11 +27,19 @@ model Membro {
   criadoEm      DateTime @default(now())
 }
 
-model servico {
-  id        Int      @id @default(autoincrement())
-  nome      String   // nome da pessoa ou empresa
-  tipo      String   // ex: cabeleireiro, pintor, eletricista
-  descricao String?  // descrição opcional do serviço
-  telefone  String   // telefone ou WhatsApp
-  criadoEm  DateTime @default(now())
+model TipoServico {
+  id       Int       @id @default(autoincrement())
+  nome     String    @unique
+  servicos Servico[]
+}
+
+model Servico {
+  id           Int         @id @default(autoincrement())
+  nome         String
+  tipoId       Int
+  tipo         TipoServico @relation(fields: [tipoId], references: [id])
+  descricao    String?
+  telefone     String
+  ativo        Boolean     @default(true)
+  criadoEm    DateTime    @default(now())
 }

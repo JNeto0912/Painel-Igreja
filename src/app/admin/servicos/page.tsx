@@ -1,160 +1,196 @@
-import { prisma } from '@/lib/prisma';
+'use client';
 
-async function getServicos() {
-  return prisma.servico.findMany({
-    orderBy: { criadoEm: 'asc' },
-  });
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+
+interface Tipo {
+  id: number;
+  nome: string;
 }
 
-export default async function ServicosPage() {
-  const servicos = await getServicos();
+interface Servico {
+  id: number;
+  nome: string;
+  tipoId: number;
+  tipo: Tipo;
+  descricao: string | null;
+  telefone: string;
+  ativo: boolean;
+}
 
-  // ---------- ação de criar ----------
-  async function criarServico(formData: FormData) {
-    'use server';
+export default function ServicosAdminPage() {
+  const [servicos, setServicos] = useState<Servico[]>([]);
+  const [tipos, setTipos] = useState<Tipo[]>([]);
+  const [form, setForm] = useState({
+    nome: '',
+    tipoId: '',
+    descricao: '',
+    telefone: '',
+  });
+  const [editandoId, setEditandoId] = useState<number | null>(null);
 
-    const nome = String(formData.get('nome') ?? '').trim();
-    const tipo = String(formData.get('tipo') ?? '').trim();
-    const telefone = String(formData.get('telefone') ?? '').trim();
-    const descricao = String(formData.get('descricao') ?? '').trim();
-
-    if (!nome || !tipo || !telefone) return;
-
-    await prisma.servico.create({
-      data: {
-        nome,
-        tipo,
-        telefone,
-        descricao: descricao || null,
-      },
-    });
+  async function carregar() {
+    const [sRes, tRes] = await Promise.all([
+      fetch('/api/servicos'),
+      fetch('/api/tipos'),
+    ]);
+    setServicos(await sRes.json());
+    setTipos(await tRes.json());
   }
 
-  // ---------- ação de remover ----------
-  async function removerServico(formData: FormData) {
-    'use server';
+  useEffect(() => {
+    carregar();
+  }, []);
 
-    const id = Number(formData.get('id'));
-    if (!id) return;
+  async function salvar() {
+    if (!form.nome || !form.tipoId || !form.telefone) {
+      alert('Preencha nome, tipo e telefone.');
+      return;
+    }
 
-    await prisma.servico.delete({
-      where: { id },
+    const method = editandoId ? 'PUT' : 'POST';
+    const url = editandoId ? `/api/servicos/${editandoId}` : '/api/servicos';
+
+    const res = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nome: form.nome,
+        tipoId: Number(form.tipoId),
+        descricao: form.descricao || null,
+        telefone: form.telefone,
+      }),
     });
+
+    if (res.ok) {
+      setForm({ nome: '', tipoId: '', descricao: '', telefone: '' });
+      setEditandoId(null);
+      carregar();
+    }
+  }
+
+  async function excluir(id: number) {
+    if (!confirm('Excluir este serviço?')) return;
+    await fetch(`/api/servicos/${id}`, { method: 'DELETE' });
+    carregar();
+  }
+
+  function editar(s: Servico) {
+    setEditandoId(s.id);
+    setForm({
+      nome: s.nome,
+      tipoId: String(s.tipoId),
+      descricao: s.descricao || '',
+      telefone: s.telefone,
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   return (
-    <div className="max-w-4xl mx-auto py-10 px-4 space-y-8">
-      <h1 className="text-2xl font-bold mb-4">Serviços dos Irmãos</h1>
+    <div className="min-h-screen bg-zinc-100 p-6">
+      <div className="max-w-2xl mx-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-zinc-800">Serviços dos Irmãos</h1>
+          <Link href="/admin" className="text-sm text-zinc-500 hover:text-zinc-700">
+            ← Voltar
+          </Link>
+        </div>
 
-      <p className="text-sm text-gray-600 mb-6">
-        Cadastre aqui irmãos que oferecem serviços (cabeleireiro, pintor,
-        eletricista, etc.). A igreja apenas divulga o contato; não se
-        responsabiliza pelos serviços prestados.
-      </p>
-
-      {/* ---------- Formulário de cadastro ---------- */}
-      <form action={criarServico} className="bg-white rounded-xl shadow p-6 space-y-4">
-        <h2 className="text-lg font-semibold mb-2">Novo serviço</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nome da pessoa ou empresa
-            </label>
+        {/* Formulário */}
+        <div className="bg-white rounded-xl shadow p-5 mb-6">
+          <h2 className="font-semibold text-zinc-700 mb-4">
+            {editandoId ? 'Editando serviço' : 'Novo serviço'}
+          </h2>
+          <div className="grid grid-cols-1 gap-3">
             <input
               type="text"
-              name="nome"
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Nome da pessoa"
+              value={form.nome}
+              onChange={(e) => setForm({ ...form, nome: e.target.value })}
+              className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo de serviço
-            </label>
+            <select
+              value={form.tipoId}
+              onChange={(e) => setForm({ ...form, tipoId: e.target.value })}
+              className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value="">Selecione o tipo de serviço</option>
+              {tipos.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.nome}
+                </option>
+              ))}
+            </select>
             <input
               type="text"
-              name="tipo"
-              placeholder="Ex.: Cabeleireiro, Pintor, Eletricista"
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Telefone / WhatsApp"
+              value={form.telefone}
+              onChange={(e) => setForm({ ...form, telefone: e.target.value })}
+              className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Telefone / WhatsApp
-            </label>
-            <input
-              type="text"
-              name="telefone"
-              placeholder="(11) 99999‑9999"
-              required
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Descrição (opcional)
-            </label>
             <textarea
-              name="descricao"
+              placeholder="Descrição (opcional)"
+              value={form.descricao}
+              onChange={(e) => setForm({ ...form, descricao: e.target.value })}
               rows={2}
-              placeholder="Ex.: Atendo em domicílio, horário comercial, cortes femininos e masculinos..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="border border-zinc-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
             />
+          </div>
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={salvar}
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-5 py-2 rounded-lg text-sm transition-colors"
+            >
+              {editandoId ? 'Salvar alterações' : 'Adicionar'}
+            </button>
+            {editandoId && (
+              <button
+                onClick={() => {
+                  setEditandoId(null);
+                  setForm({ nome: '', tipoId: '', descricao: '', telefone: '' });
+                }}
+                className="text-zinc-500 hover:text-zinc-700 text-sm px-3"
+              >
+                Cancelar
+              </button>
+            )}
           </div>
         </div>
 
-        <button
-          type="submit"
-          className="mt-2 inline-flex items-center px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition"
-        >
-          Salvar serviço
-        </button>
-      </form>
-
-      {/* ---------- Lista de serviços ---------- */}
-      <div className="bg-white rounded-xl shadow overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 text-gray-600">
-            <tr>
-              <th className="text-left px-4 py-3">Nome</th>
-              <th className="text-left px-4 py-3">Serviço</th>
-              <th className="text-left px-4 py-3">Telefone</th>
-              <th className="px-4 py-3"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {servicos.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
-                  Nenhum serviço cadastrado ainda.
-                </td>
-              </tr>
-            )}
-            {servicos.map((s) => (
-              <tr key={s.id} className="border-t">
-                <td className="px-4 py-3 font-medium">{s.nome}</td>
-                <td className="px-4 py-3">{s.tipo}</td>
-                <td className="px-4 py-3">{s.telefone}</td>
-                <td className="px-4 py-3 text-right">
-                  <form action={removerServico}>
-                    <input type="hidden" name="id" value={s.id} />
-                    <button
-                      type="submit"
-                      className="text-red-500 hover:text-red-700 text-xs font-semibold"
-                    >
-                      Remover
-                    </button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {/* Lista */}
+        <div className="bg-white rounded-xl shadow divide-y divide-zinc-100">
+          {servicos.length === 0 && (
+            <p className="text-zinc-400 text-sm text-center py-6">
+              Nenhum serviço cadastrado ainda.
+            </p>
+          )}
+          {servicos.map((s) => (
+            <div key={s.id} className="px-4 py-3 flex items-start justify-between gap-3">
+              <div>
+                <p className="font-semibold text-zinc-800 text-sm">{s.nome}</p>
+                <p className="text-purple-600 text-xs font-medium">{s.tipo.nome}</p>
+                {s.descricao && (
+                  <p className="text-zinc-500 text-xs mt-0.5">{s.descricao}</p>
+                )}
+                <p className="text-zinc-400 text-xs mt-0.5">{s.telefone}</p>
+              </div>
+              <div className="flex gap-3 shrink-0">
+                <button
+                  onClick={() => editar(s)}
+                  className="text-blue-500 hover:text-blue-700 text-sm"
+                >
+                  Editar
+                </button>
+                <button
+                  onClick={() => excluir(s.id)}
+                  className="text-red-500 hover:text-red-700 text-sm"
+                >
+                  Excluir
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
