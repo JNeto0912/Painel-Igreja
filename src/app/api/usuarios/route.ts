@@ -13,5 +13,6 @@ export async function GET() {
       criadoEm: true,
     },
   });
+
   return NextResponse.json(usuarios);
 }

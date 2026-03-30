@@ -20,6 +20,7 @@ export async function PUT(
       telefone: true,
       aprovado: true,
       admin: true,
+      criadoEm: true,
     },
   });
 

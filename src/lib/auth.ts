@@ -1,9 +1,7 @@
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
-
-const USUARIO = process.env.ADMIN_USER ?? 'admin';
-const SENHA_HASH = process.env.ADMIN_PASSWORD_HASH ?? '';
+import { prisma } from '@/lib/prisma';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
@@ -18,20 +16,29 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const password = credentials?.password as string | undefined;
 
         if (!username || !password) return null;
-        if (username !== USUARIO) return null;
-        if (!SENHA_HASH) return null;
 
-        const ok = await bcrypt.compare(password, SENHA_HASH);
+        // Busca na tabela Usuario
+        const usuario = await prisma.usuario.findUnique({
+          where: { login: username.trim() },
+        });
+
+        if (!usuario) return null;
+
+        // Bloqueia se não estiver aprovado
+        if (!usuario.aprovado) return null;
+
+        // Verifica senha com bcrypt
+        const ok = await bcrypt.compare(password, usuario.senha);
         if (!ok) return null;
 
         return {
-          id: '1',
-          name: username,
+          id: String(usuario.id),
+          name: usuario.login,
         };
       },
     }),
   ],
   pages: {
-    signIn: '/login', // usamos nossa página custom
+    signIn: '/login',
   },
 });

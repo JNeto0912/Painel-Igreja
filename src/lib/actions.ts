@@ -6,8 +6,8 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 export async function loginAction(formData: FormData) {
-  const login = formData.get('username') as string;
-  const senha = formData.get('password') as string;
+  const login = formData.get('username') as string | null;
+  const senha = formData.get('password') as string | null;
 
   if (!login || !senha) {
     redirect('/login?erro=1');
@@ -31,6 +31,7 @@ export async function loginAction(formData: FormData) {
   }
 
   const cookieStore = await cookies();
+  // Aqui está bem simples: apenas marca que está autenticado
   cookieStore.set('auth', '1', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
