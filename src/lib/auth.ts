@@ -1,3 +1,4 @@
+// src/lib/auth.ts
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
@@ -12,25 +13,38 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: 'Senha', type: 'password' },
       },
       authorize: async (credentials) => {
+        console.log('--- Tentativa de Login ---');
         const username = credentials?.username as string | undefined;
         const password = credentials?.password as string | undefined;
 
-        if (!username || !password) return null;
+        if (!username || !password) {
+          console.log('Login ou senha não fornecidos.');
+          return null;
+        }
 
-        // Busca na tabela Usuario
+        console.log(`Tentando login para: ${username}`);
         const usuario = await prisma.usuario.findUnique({
           where: { login: username.trim() },
         });
 
-        if (!usuario) return null;
+        if (!usuario) {
+          console.log('Usuário não encontrado.');
+          return null;
+        }
 
-        // Bloqueia se não estiver aprovado
-        if (!usuario.aprovado) return null;
+        console.log(`Usuário encontrado: ${usuario.login}`);
+        if (!usuario.aprovado) {
+          console.log('Usuário não aprovado.');
+          return null;
+        }
 
-        // Verifica senha com bcrypt
         const ok = await bcrypt.compare(password, usuario.senha);
-        if (!ok) return null;
+        if (!ok) {
+          console.log('Senha incorreta.');
+          return null;
+        }
 
+        console.log('Login bem-sucedido!');
         return {
           id: String(usuario.id),
           name: usuario.login,

@@ -66,8 +66,9 @@ model Usuario {
   id        Int      @id @default(autoincrement())
   login     String   @unique
   senha     String
-  telefone  String
+  telefone  String?  // <-- COMENTE OU REMOVA ESTA LINHA TEMPORARIAMENTE
   aprovado  Boolean  @default(false)
   admin     Boolean  @default(false)
-  criadoEm DateTime @default(now())
+  criadoEm  DateTime @default(now())
+ 
 }

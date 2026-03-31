@@ -1,26 +1,18 @@
 import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import type { NextRequest } from 'next/server'; // <-- Esta linha é a importante
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const sessionToken =
-    request.cookies.get('__Secure-authjs.session-token')?.value ||
-    request.cookies.get('authjs.session-token')?.value ||
-    request.cookies.get('next-auth.session-token')?.value ||
-    request.cookies.get('__Secure-next-auth.session-token')?.value;
+  const auth = request.cookies.get('auth')?.value;
 
-  if (pathname.startsWith('/admin') && !sessionToken) {
+  if (pathname.startsWith('/admin') && !auth) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  if (pathname === '/login' && sessionToken) {
+  if (pathname === '/login' && auth) {
     return NextResponse.redirect(new URL('/admin', request.url));
   }
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: ['/admin/:path*', '/login'],
-};
