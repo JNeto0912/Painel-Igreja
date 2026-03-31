@@ -1,7 +1,9 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  reactCompiler: true,
+// next.config.js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // reactCompiler: true, // REMOVA OU COMENTE ESTA LINHA
+  // Adicione outras configurações se precisar, como reactStrictMode: true
+  reactStrictMode: true,
 };
 
-export default nextConfig;
+module.exports = nextConfig; // Use module.exports para JS
