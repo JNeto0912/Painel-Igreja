@@ -1,18 +1,13 @@
 // src/app/layout.tsx
-
-// Importa o arquivo CSS global (onde o Tailwind é configurado)
-import './globals.css'; // Certifique-se de que o caminho está correto!
-
-// Importa uma fonte do Google Fonts (ex: Inter)
-// Se você não quiser usar uma fonte específica, pode remover esta importação e o className no <html>
+import './globals.css';
 import { Inter } from 'next/font/google';
+import Image from 'next/image';
 
 const inter = Inter({
-  subsets: ['latin'], // Define os subconjuntos de caracteres da fonte
-  display: 'swap',    // Garante que a fonte seja exibida corretamente
+  subsets: ['latin'],
+  display: 'swap',
 });
 
-// Metadados da aplicação (opcional, mas recomendado para SEO)
 export const metadata = {
   title: 'Painel da Igreja',
   description: 'Sistema de gerenciamento para a igreja',
@@ -24,14 +19,32 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    // O <html> deve ter a propriedade lang e, opcionalmente, o className da fonte
     <html lang="pt-BR" className={inter.className}>
-      <body>
-        {/*
-          O 'children' representa o conteúdo das suas páginas e layouts aninhados.
-          Ele será renderizado dentro do <body>.
-        */}
-        {children}
+      <body className="min-h-screen flex flex-col">
+        {/* Conteúdo principal */}
+        <main className="flex-1">
+          {children}
+        </main>
+
+        {/* "Rodapé" com logo + frase, tudo embaixo e lado a lado */}
+        <footer className="w-full flex flex-col items-center justify-center gap-2 py-4">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/uploads/resolult.png"   // seu logo em public/uploads
+              alt="Logotipo do Projeto"
+              width={120}               // ajuste o tamanho como quiser
+              height={120}
+            />
+            <div className="flex flex-col">
+              <span className="italic text-sm text-center">
+                "Transformar desafios em resultados concretos."
+              </span>
+              <span className="text-xs text-center mt-1">
+                Desenvolvido por Neto
+              </span>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
