@@ -1,6 +1,7 @@
+// src/app/servicos/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react'; // Importe useMemo
 import Link from 'next/link';
 
 interface Tipo {
@@ -28,6 +29,7 @@ export default function ServicosAdminPage() {
     telefone: '',
   });
   const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [termoPesquisa, setTermoPesquisa] = useState(''); // Novo estado para o termo de pesquisa
 
   async function carregar() {
     const [sRes, tRes] = await Promise.all([
@@ -41,6 +43,21 @@ export default function ServicosAdminPage() {
   useEffect(() => {
     carregar();
   }, []);
+
+  // Lógica de filtragem para a pesquisa
+  const servicosFiltrados = useMemo(() => {
+    const termo = termoPesquisa.trim().toLowerCase();
+    if (!termo) return servicos;
+
+    return servicos.filter(s => {
+      return (
+        s.nome.toLowerCase().includes(termo) ||
+        s.tipo.nome.toLowerCase().includes(termo) ||
+        (s.descricao && s.descricao.toLowerCase().includes(termo)) ||
+        s.telefone.includes(termo) // Pesquisa por telefone também
+      );
+    });
+  }, [servicos, termoPesquisa]); // Dependências: servicos e termoPesquisa
 
   async function salvar() {
     if (!form.nome || !form.tipoId || !form.telefone) {
@@ -157,14 +174,25 @@ export default function ServicosAdminPage() {
           </div>
         </div>
 
+        {/* Campo de Pesquisa */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Pesquisar serviços por nome, tipo, descrição ou telefone..."
+            value={termoPesquisa}
+            onChange={(e) => setTermoPesquisa(e.target.value)}
+            className="w-full border border-zinc-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+
         {/* Lista */}
         <div className="bg-white rounded-xl shadow divide-y divide-zinc-100">
-          {servicos.length === 0 && (
+          {servicosFiltrados.length === 0 && (
             <p className="text-zinc-400 text-sm text-center py-6">
-              Nenhum serviço cadastrado ainda.
+              Nenhum serviço encontrado.
             </p>
           )}
-          {servicos.map((s) => (
+          {servicosFiltrados.map((s) => (
             <div key={s.id} className="px-4 py-3 flex items-start justify-between gap-3">
               <div>
                 <p className="font-semibold text-zinc-800 text-sm">{s.nome}</p>

@@ -1,7 +1,7 @@
-// src/app/admin/voluntarios/page.tsx
+// src/app/voluntarios/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react'; // Importe useMemo
 import Link from 'next/link';
 
 interface Area {
@@ -17,7 +17,7 @@ interface Voluntario {
   dons: string | null;
   telefone: string;
   email: string | null;
-  disponivel: boolean; // Manter este campo para futura validação
+  disponivel: boolean;
 }
 
 export default function VoluntariosAdminPage() {
@@ -31,6 +31,7 @@ export default function VoluntariosAdminPage() {
     email: '',
   });
   const [editandoId, setEditandoId] = useState<number | null>(null);
+  const [termoPesquisa, setTermoPesquisa] = useState(''); // Novo estado para o termo de pesquisa
 
   async function carregarDados() {
     const [vRes, aRes] = await Promise.all([
@@ -43,7 +44,23 @@ export default function VoluntariosAdminPage() {
 
   useEffect(() => {
     carregarDados();
-  }, []); // O useEffect com array vazio executa apenas uma vez ao montar o componente. <sources>[1,2,3,4,5,6,7]</sources>
+  }, []);
+
+  // Lógica de filtragem para a pesquisa
+  const voluntariosFiltrados = useMemo(() => {
+    const termo = termoPesquisa.trim().toLowerCase();
+    if (!termo) return voluntarios;
+
+    return voluntarios.filter(v => {
+      return (
+        v.nome.toLowerCase().includes(termo) ||
+        v.area.nome.toLowerCase().includes(termo) ||
+        (v.dons && v.dons.toLowerCase().includes(termo)) ||
+        v.telefone.includes(termo) ||
+        (v.email && v.email.toLowerCase().includes(termo))
+      );
+    });
+  }, [voluntarios, termoPesquisa]); // Dependências: voluntarios e termoPesquisa
 
   async function salvarVoluntario() {
     if (!form.nome || !form.areaId || !form.telefone) {
@@ -63,14 +80,14 @@ export default function VoluntariosAdminPage() {
         dons: form.dons || null,
         telefone: form.telefone,
         email: form.email || null,
-        disponivel: true, // Ou false, dependendo da lógica inicial de validação
+        disponivel: true,
       }),
     });
 
     if (res.ok) {
       setForm({ nome: '', areaId: '', dons: '', telefone: '', email: '' });
       setEditandoId(null);
-      carregarDados(); // Recarrega a lista após salvar
+      carregarDados();
     } else {
       alert('Erro ao salvar voluntário.');
     }
@@ -79,7 +96,7 @@ export default function VoluntariosAdminPage() {
   async function excluirVoluntario(id: number) {
     if (!confirm('Tem certeza que deseja excluir este voluntário?')) return;
     await fetch(`/api/voluntarios/${id}`, { method: 'DELETE' });
-    carregarDados(); // Recarrega a lista após excluir
+    carregarDados();
   }
 
   function editarVoluntario(v: Voluntario) {
@@ -91,22 +108,21 @@ export default function VoluntariosAdminPage() {
       telefone: v.telefone,
       email: v.email || '',
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' }); // Rola para o topo para o formulário
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // Função para alternar a disponibilidade (validação)
   async function toggleDisponibilidade(voluntario: Voluntario) {
     const res = await fetch(`/api/voluntarios/${voluntario.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        ...voluntario, // Mantém os outros dados
-        disponivel: !voluntario.disponivel, // Inverte o status
+        ...voluntario,
+        disponivel: !voluntario.disponivel,
       }),
     });
 
     if (res.ok) {
-      carregarDados(); // Recarrega a lista para mostrar a mudança
+      carregarDados();
     } else {
       alert('Erro ao atualizar status do voluntário.');
     }
@@ -122,7 +138,7 @@ export default function VoluntariosAdminPage() {
           </Link>
         </div>
 
-        {/* Formulário de Adição/Edição (para administradores) */}
+        {/* Formulário de Adição/Edição */}
         <div className="bg-white rounded-xl shadow p-5 mb-6">
           <h2 className="font-semibold text-zinc-700 mb-4">
             {editandoId ? 'Editar voluntário' : 'Adicionar novo voluntário (Admin)'}
@@ -190,14 +206,25 @@ export default function VoluntariosAdminPage() {
           </div>
         </div>
 
-        {/* Lista de Voluntários (para administradores) */}
+        {/* Campo de Pesquisa */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Pesquisar voluntários por nome, área, dons, telefone ou e-mail..."
+            value={termoPesquisa}
+            onChange={(e) => setTermoPesquisa(e.target.value)}
+            className="w-full border border-zinc-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+
+        {/* Lista de Voluntários */}
         <div className="bg-white rounded-xl shadow divide-y divide-zinc-100">
-          {voluntarios.length === 0 ? (
+          {voluntariosFiltrados.length === 0 ? (
             <p className="text-zinc-400 text-sm text-center py-6">
-              Nenhum voluntário cadastrado ainda.
+              Nenhum voluntário encontrado.
             </p>
           ) : (
-            voluntarios.map((v) => (
+            voluntariosFiltrados.map((v) => (
               <div key={v.id} className="px-4 py-3 flex items-start justify-between gap-3">
                 <div>
                   <p className="font-semibold text-zinc-800">{v.nome}</p>
@@ -209,7 +236,7 @@ export default function VoluntariosAdminPage() {
                   )}
                   <p className="text-zinc-500 text-xs mt-1">{v.telefone}</p>
                   {v.email && (
-                    <p className="text-zinc-500 text-xs">{v.email}</p>
+                    <p className="text-zinc-500 text-xs">E-mail: {v.email}</p>
                   )}
                 </div>
                 <div className="flex gap-3 shrink-0 items-center">
