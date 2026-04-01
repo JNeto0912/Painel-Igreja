@@ -7,128 +7,232 @@ export default async function Home() {
   const isAdmin = cookieStore.get('isAdmin')?.value === 'true';
 
   return (
-    <div className="min-h-screen bg-zinc-100 flex items-center justify-center px-4 py-10">
-      <div className="bg-white rounded-xl shadow p-8 w-full max-w-4xl">
-
-        {/* HEADER COM LOGOUT */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-zinc-800">Painel Igreja</h1>
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-5xl">
+        {/* HEADER */}
+        <header className="flex items-center justify-between mb-7">
+          <div className="flex items-center gap-3">
+            <img
+              src="/uploads/resolult.png"
+              alt="Logo"
+              className="h-10 w-auto object-contain drop-shadow"
+            />
+            <div>
+              <h1 className="text-xl font-semibold text-white leading-tight">
+                Painel da Igreja
+              </h1>
+              <p className="text-xs text-slate-400">
+                Gerencie avisos, membros e ministérios
+              </p>
+            </div>
+          </div>
           <BotaoLogout />
-        </div>
+        </header>
 
-        <div className={`grid gap-8 ${isAdmin ? 'md:grid-cols-[2fr,1.2fr]' : 'md:grid-cols-1'}`}>
-
-          {/* COLUNA ESQUERDA - MENU PRINCIPAL */}
-          <div>
-            <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">
+        {/* GRID PRINCIPAL */}
+        <div
+          className={`grid gap-6 ${
+            isAdmin ? 'md:grid-cols-[2fr,1.3fr]' : 'md:grid-cols-1'
+          }`}
+        >
+          {/* COLUNA ESQUERDA - CONTEÚDO E MINISTÉRIOS */}
+          <section className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl shadow-black/30">
+            <h2 className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.18em] mb-5">
               Conteúdo e Ministérios
             </h2>
 
-            <div className="flex flex-col gap-3">
+            <div className="grid gap-3 sm:grid-cols-2">
+              {/* Avisos */}
               <Link
                 href="/admin/avisos"
-                className="block text-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors"
+                className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
               >
-                Gerenciar Avisos
+                <span className="text-xl mt-0.5">📢</span>
+                <div>
+                  <p className="font-semibold text-sm">Gerenciar Avisos</p>
+                  <p className="text-[11px] text-blue-100 mt-0.5">
+                    Exibir comunicados no display e TV
+                  </p>
+                </div>
               </Link>
 
+              {/* Membros */}
               <Link
                 href="/admin/membros"
-                className="block text-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition-colors"
+                className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-emerald-600 to-green-500 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
               >
-                Gerenciar Membros
+                <span className="text-xl mt-0.5">👥</span>
+                <div>
+                  <p className="font-semibold text-sm">Gerenciar Membros</p>
+                  <p className="text-[11px] text-emerald-100 mt-0.5">
+                    Cadastro e aniversariantes
+                  </p>
+                </div>
               </Link>
 
-              <Link
-                href="/admin/servicos/publico"
-                className="block text-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition-colors"
-              >
-                Ver página pública de serviços
-              </Link>
-
-              <Link
-                href="/admin/voluntarios/publico"
-                className="block text-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition-colors"
-              >
-                Ver página pública de voluntários
-              </Link>
-
+              {/* Serviços dos Irmãos */}
               <Link
                 href="/admin/servicos"
-                className="block text-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition-colors"
+                className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-600 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
               >
-                Serviços dos Irmãos
+                <span className="text-xl mt-0.5">🤝</span>
+                <div>
+                  <p className="font-semibold text-sm">Serviços dos Irmãos</p>
+                  <p className="text-[11px] text-purple-100 mt-0.5">
+                    Profissões e serviços da igreja
+                  </p>
+                </div>
               </Link>
 
-              <Link
-                href="/voluntarios/inscricao"
-                className="block text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 rounded-lg transition-colors"
-              >
-                Quero ser voluntário
-              </Link>
-
+              {/* Voluntários (gestão interna) */}
               <Link
                 href="/admin/voluntarios"
-                className="block text-center bg-cyan-800 hover:bg-cyan-900 text-white font-semibold py-2 rounded-lg transition-colors"
+                className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-cyan-700 to-sky-500 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
               >
-                Voluntários
+                <span className="text-xl mt-0.5">🙋</span>
+                <div>
+                  <p className="font-semibold text-sm">Voluntários</p>
+                  <p className="text-[11px] text-cyan-100 mt-0.5">
+                    Equipes e áreas de serviço
+                  </p>
+                </div>
               </Link>
 
+              {/* Página pública de serviços */}
+              <Link
+                href="/admin/servicos/publico"
+                className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-emerald-700 to-emerald-500 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
+              >
+                <span className="text-xl mt-0.5">🌐</span>
+                <div>
+                  <p className="font-semibold text-sm">
+                    Página pública de serviços
+                  </p>
+                  <p className="text-[11px] text-emerald-100 mt-0.5">
+                    Link para divulgar aos membros
+                  </p>
+                </div>
+              </Link>
+
+              {/* Página pública de voluntários */}
+              <Link
+                href="/admin/voluntarios/publico"
+                className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-cyan-700 to-teal-500 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
+              >
+                <span className="text-xl mt-0.5">🌐</span>
+                <div>
+                  <p className="font-semibold text-sm">
+                    Página pública de voluntários
+                  </p>
+                  <p className="text-[11px] text-cyan-100 mt-0.5">
+                    Para a igreja ver as equipes
+                  </p>
+                </div>
+              </Link>
+
+              {/* Quero ser voluntário (inscrição) */}
+              <Link
+                href="/voluntarios/inscricao"
+                className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-emerald-500 to-lime-500 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
+              >
+                <span className="text-xl mt-0.5">✍️</span>
+                <div>
+                  <p className="font-semibold text-sm">Quero ser voluntário</p>
+                  <p className="text-[11px] text-lime-100 mt-0.5">
+                    Inscrição para novos voluntários
+                  </p>
+                </div>
+              </Link>
+
+              {/* Tela de Display (TV) */}
               <Link
                 href="/display"
-                className="block text-center bg-zinc-800 hover:bg-zinc-900 text-white font-semibold py-2 rounded-lg transition-colors"
+                className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-sky-700 to-indigo-600 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all sm:col-span-2"
               >
-                Tela de Display (TV)
+                <span className="text-xl mt-0.5">📺</span>
+                <div>
+                  <p className="font-semibold text-sm">Tela de Display (TV)</p>
+                  <p className="text-[11px] text-sky-100 mt-0.5">
+                    Abrir painel de avisos para o telão da igreja
+                  </p>
+                </div>
               </Link>
             </div>
-          </div>
+          </section>
 
-          {/* COLUNA DIREITA - ADMINISTRAÇÃO (só aparece para admin global) */}
+          {/* COLUNA DIREITA - ADMINISTRAÇÃO (só admin) */}
           {isAdmin && (
-            <div>
-              <h2 className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3">
+            <section className="bg-slate-900/70 border border-slate-800 rounded-2xl p-6 shadow-xl shadow-black/30">
+              <h2 className="text-[11px] font-semibold text-slate-500 uppercase tracking-[0.18em] mb-5">
                 Administração do Sistema
               </h2>
 
-              <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-4 flex flex-col gap-3">
-                <p className="text-xs text-zinc-400">
-                  Configurações e controle de acesso ao painel.
-                </p>
+              <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+                Controle de usuários, igrejas e configurações avançadas do
+                painel.
+              </p>
 
+              <div className="flex flex-col gap-3">
+                {/* Usuários */}
                 <Link
                   href="/admin/usuarios"
-                  className="block text-left bg-amber-500 hover:bg-amber-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors"
+                  className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
                 >
-                  Gerenciar Usuários
-                  <span className="block text-[11px] font-normal text-amber-100 mt-0.5">
-                    Aprovar acessos e definir administradores
-                  </span>
+                  <span className="text-xl mt-0.5">🔑</span>
+                  <div>
+                    <p className="font-semibold text-sm">Gerenciar Usuários</p>
+                    <p className="text-[11px] text-amber-100 mt-0.5">
+                      Aprovar acessos e definir administradores
+                    </p>
+                  </div>
                 </Link>
 
+                {/* Áreas de Voluntariado */}
                 <Link
                   href="/admin/voluntario-areas"
-                  className="block text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 rounded-lg transition-colors"
+                  className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-cyan-600 to-sky-500 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
                 >
-                  Áreas de Voluntariado
+                  <span className="text-xl mt-0.5">🧩</span>
+                  <div>
+                    <p className="font-semibold text-sm">
+                      Áreas de Voluntariado
+                    </p>
+                    <p className="text-[11px] text-cyan-100 mt-0.5">
+                      Ministérios e áreas de serviço
+                    </p>
+                  </div>
                 </Link>
 
+                {/* Tipos de Serviço */}
                 <Link
                   href="/admin/tipos"
-                  className="block text-center bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition-colors"
+                  className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
                 >
-                  Tipos de Serviço
+                  <span className="text-xl mt-0.5">🏷️</span>
+                  <div>
+                    <p className="font-semibold text-sm">Tipos de Serviço</p>
+                    <p className="text-[11px] text-orange-100 mt-0.5">
+                      Classificar serviços dos irmãos
+                    </p>
+                  </div>
                 </Link>
 
+                {/* Gerenciar Igrejas */}
                 <Link
                   href="/admin/igrejas"
-                  className="block text-center bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition-colors"
+                  className="flex items-start gap-3 rounded-xl bg-gradient-to-br from-lime-500 to-emerald-500 px-4 py-3.5 text-white shadow-md hover:brightness-110 transition-all"
                 >
-                  Gerenciar Igrejas
+                  <span className="text-xl mt-0.5">📍</span>
+                  <div>
+                    <p className="font-semibold text-sm">Gerenciar Igrejas</p>
+                    <p className="text-[11px] text-lime-100 mt-0.5">
+                      Cadastrar e configurar congregações
+                    </p>
+                  </div>
                 </Link>
               </div>
-            </div>
+            </section>
           )}
-
         </div>
       </div>
     </div>
