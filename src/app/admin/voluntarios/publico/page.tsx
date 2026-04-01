@@ -23,12 +23,15 @@ export default function VoluntariosPublicoPage() {
   const [voluntarios, setVoluntarios] = useState<Voluntario[]>([]);
   const [termoPesquisa, setTermoPesquisa] = useState('');
 
-  async function carregar() {
-    const res = await fetch('/api/voluntarios');
-    const dados: Voluntario[] = await res.json();
-    // se quiser exibir só os disponíveis:
-    setVoluntarios(dados.filter(v => v.disponivel));
+async function carregar() {
+  const res = await fetch('/api/publico/voluntarios');
+  if (!res.ok) {
+    setVoluntarios([]);
+    return;
   }
+  const dados: Voluntario[] = await res.json();
+  setVoluntarios(dados); // já vem filtrado só com disponivel: true
+}
 
   useEffect(() => {
     carregar();

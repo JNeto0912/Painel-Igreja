@@ -33,14 +33,18 @@ export default function VoluntariosAdminPage() {
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [termoPesquisa, setTermoPesquisa] = useState(''); // Novo estado para o termo de pesquisa
 
-  async function carregarDados() {
-    const [vRes, aRes] = await Promise.all([
-      fetch('/api/voluntarios'),
-      fetch('/api/voluntario-areas'),
-    ]);
-    setVoluntarios(await vRes.json());
-    setAreas(await aRes.json());
-  }
+async function carregarDados() {
+  const [vRes, aRes] = await Promise.all([
+    fetch('/api/voluntarios'),
+    fetch('/api/voluntario-areas'),
+  ]);
+
+  const vDados = await vRes.json();
+  const aDados = await aRes.json();
+
+  setVoluntarios(Array.isArray(vDados) ? vDados : []);
+  setAreas(Array.isArray(aDados) ? aDados : []);
+}
 
   useEffect(() => {
     carregarDados();

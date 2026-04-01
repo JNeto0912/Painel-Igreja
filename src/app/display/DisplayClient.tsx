@@ -24,6 +24,10 @@ type SlideAniversario = {
 
 type Slide = SlideAviso | SlideAniversario;
 
+type Props = {
+  slug: string;
+};
+
 const INTERVALO_SLIDE_MS = 8000;
 const INTERVALO_FETCH_MS = 60000;
 
@@ -31,7 +35,10 @@ const BALOES = ['🎈', '🎉', '🎊', '🎀', '🎁', '✨', '🌟', '💛', '
 
 function Balao({ emoji, style }: { emoji: string; style: React.CSSProperties }) {
   return (
-    <div className="absolute text-5xl animate-bounce select-none pointer-events-none" style={style}>
+    <div
+      className="absolute text-5xl animate-bounce select-none pointer-events-none"
+      style={style}
+    >
       {emoji}
     </div>
   );
@@ -64,7 +71,13 @@ function BarraProgresso({ duracao }: { duracao: number }) {
   );
 }
 
-function SlideAniversario({ nome, fotoUrl }: { nome: string; fotoUrl: string | null }) {
+function SlideAniversario({
+  nome,
+  fotoUrl,
+}: {
+  nome: string;
+  fotoUrl: string | null;
+}) {
   const baloes = Array.from({ length: 18 }, (_, i) => ({
     emoji: BALOES[i % BALOES.length],
     style: {
@@ -79,12 +92,10 @@ function SlideAniversario({ nome, fotoUrl }: { nome: string; fotoUrl: string | n
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-purple-900 via-pink-800 to-yellow-700">
-      {/* Balões espalhados */}
       {baloes.map((b, i) => (
         <Balao key={i} emoji={b.emoji} style={b.style} />
       ))}
 
-      {/* Confete animado (CSS puro) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {Array.from({ length: 30 }).map((_, i) => (
           <div
@@ -103,7 +114,6 @@ function SlideAniversario({ nome, fotoUrl }: { nome: string; fotoUrl: string | n
         ))}
       </div>
 
-      {/* Conteúdo central */}
       <div className="relative z-10 flex flex-col items-center gap-6 text-center px-10">
         {fotoUrl ? (
           <img
@@ -131,19 +141,32 @@ function SlideAniversario({ nome, fotoUrl }: { nome: string; fotoUrl: string | n
   );
 }
 
-export default function DisplayClient() {
+export default function DisplayClient({ slug }: Props) {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [atual, setAtual] = useState(0);
 
+  // ÚNICA mudança: usa /api/display/[slug] em vez de /api/slides
   const fetchSlides = useCallback(async () => {
     try {
-      const res = await fetch('/api/slides');
-      const data: Slide[] = await res.json();
+      const res = await fetch(`/api/display/${slug}`);
+
+      if (!res.ok) {
+        console.error('Erro ao buscar slides do display:', res.status);
+        return;
+      }
+
+      const data = await res.json();
+
+      if (!Array.isArray(data)) {
+        console.error('API não retornou array:', data);
+        return;
+      }
+
       setSlides(data);
     } catch (error) {
       console.error('Erro ao buscar slides:', error);
     }
-  }, []);
+  }, [slug]);
 
   useEffect(() => {
     fetchSlides();
@@ -171,7 +194,6 @@ export default function DisplayClient() {
 
   return (
     <div className="relative w-screen h-screen bg-black text-white overflow-hidden cursor-none">
-
       {slide.tipo === 'aviso' && (
         <img
           src={slide.data.imagemUrl}
@@ -187,7 +209,6 @@ export default function DisplayClient() {
         />
       )}
 
-      {/* Bolinhas indicadoras */}
       {slides.length > 1 && (
         <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-20">
           {slides.map((_, i) => (
@@ -201,7 +222,6 @@ export default function DisplayClient() {
         </div>
       )}
 
-      {/* Barra de progresso */}
       <BarraProgresso key={atual} duracao={INTERVALO_SLIDE_MS} />
     </div>
   );

@@ -6,6 +6,28 @@ datasource db {
   provider = "postgresql"
 }
 
+// Novo modelo para representar cada igreja
+model Igreja {
+  id        Int       @id @default(autoincrement())
+  nome      String    // Nome da igreja (ex: "Igreja Central", "Filial Norte")
+  slug      String    @unique // Um identificador único para a URL ou sistema (ex: "central", "filial-norte")
+  endereco  String?   // Endereço da igreja (opcional)
+  cidade    String?   // Cidade da igreja (opcional)
+  estado    String?   // Estado da igreja (opcional)
+  cep       String?   // CEP da igreja (opcional)
+  telefone  String?   // Telefone da igreja (opcional)
+  email     String?   // E-mail da igreja (opcional)
+  ativo     Boolean   @default(true) // Se a igreja está ativa no sistema
+  criadoEm  DateTime  @default(now())
+
+  // Relações com outros modelos
+  usuarios    Usuario[]
+  avisos      Aviso[]
+  membros     Membro[]
+  servicos    Servico[]
+  voluntarios Voluntario[]
+}
+
 model Aviso {
   id         Int      @id @default(autoincrement())
   titulo     String
@@ -15,7 +37,11 @@ model Aviso {
   dataFim    DateTime
   ordem      Int      @default(0)
   ativo      Boolean  @default(true)
-  criadoEm  DateTime @default(now())
+  criadoEm   DateTime @default(now())
+
+  // Adiciona a relação com Igreja
+  igrejaId   Int
+  igreja     Igreja   @relation(fields: [igrejaId], references: [id])
 }
 
 model Membro {
@@ -24,7 +50,11 @@ model Membro {
   dataNascimento DateTime
   fotoUrl        String?
   ativo          Boolean  @default(true)
-  criadoEm      DateTime @default(now())
+  criadoEm       DateTime @default(now())
+
+  // Adiciona a relação com Igreja
+  igrejaId       Int
+  igreja         Igreja   @relation(fields: [igrejaId], references: [id])
 }
 
 model TipoServico {
@@ -41,7 +71,11 @@ model Servico {
   descricao    String?
   telefone     String
   ativo        Boolean     @default(true)
-  criadoEm    DateTime    @default(now())
+  criadoEm     DateTime    @default(now())
+
+  // Adiciona a relação com Igreja
+  igrejaId     Int
+  igreja       Igreja      @relation(fields: [igrejaId], references: [id])
 }
 
 model VoluntarioArea {
@@ -60,15 +94,22 @@ model Voluntario {
   email      String?
   disponivel Boolean         @default(true)
   criadoEm   DateTime        @default(now())
+
+  // Adiciona a relação com Igreja
+  igrejaId   Int
+  igreja     Igreja          @relation(fields: [igrejaId], references: [id])
 }
 
 model Usuario {
   id        Int      @id @default(autoincrement())
   login     String   @unique
   senha     String
-  telefone  String?  // <-- COMENTE OU REMOVA ESTA LINHA TEMPORARIAMENTE
+  telefone  String?  // Mantive o telefone, mas se não for usar, pode remover
   aprovado  Boolean  @default(false)
   admin     Boolean  @default(false)
   criadoEm  DateTime @default(now())
- 
+
+  // Adiciona a relação com Igreja
+  igrejaId  Int
+  igreja    Igreja   @relation(fields: [igrejaId], references: [id])
 }

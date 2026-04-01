@@ -1,38 +1,42 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 
-export async function PUT(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
-  const { nome, tipoId, descricao, telefone, ativo } = await req.json();
-
-  const servico = await prisma.servico.update({
-    where: { id: Number(id) },
-    data: {
-      nome,
-      tipo: {
-        connect: { id: Number(tipoId) },
-      },
-      descricao: descricao || null,
-      telefone,
-      ativo: ativo ?? true,
-    },
-    include: { tipo: true },
-  });
-
-  return NextResponse.json(servico);
+interface Params {
+  params: { id: string };
 }
 
-export async function DELETE(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
+export async function PUT(request: Request, { params }: Params) {
+  const cookieStore = await cookies();
+  const igrejaId = cookieStore.get('igrejaId')?.value;
+  const id = Number(params.id);
 
-  await prisma.servico.delete({
-    where: { id: Number(id) },
+  if (!igrejaId) {
+    return NextResponse.json({ error: 'Igreja não encontrada' }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const { nome, tipoId, descricao, telefone } = body;
+
+  const result = await prisma.servico.updateMany({
+    where: { id, igrejaId: Number(igrejaId) },
+    data: { nome, tipoId, descricao, telefone },
+  });
+
+  return NextResponse.json(result);
+}
+
+export async function DELETE(request: Request, { params }: Params) {
+  const cookieStore = await cookies();
+  const igrejaId = cookieStore.get('igrejaId')?.value;
+  const id = Number(params.id);
+
+  if (!igrejaId) {
+    return NextResponse.json({ error: 'Igreja não encontrada' }, { status: 401 });
+  }
+
+  await prisma.servico.deleteMany({
+    where: { id, igrejaId: Number(igrejaId) },
   });
 
   return NextResponse.json({ ok: true });

@@ -1,45 +1,44 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const nome = searchParams.get('nome') || '';
-  const tipoId = searchParams.get('tipoId') || '';
+export async function GET() {
+  const cookieStore = await cookies();
+  const igrejaId = cookieStore.get('igrejaId')?.value;
+
+  if (!igrejaId) {
+    return NextResponse.json({ error: 'Igreja não encontrada na sessão' }, { status: 401 });
+  }
 
   const servicos = await prisma.servico.findMany({
-    where: {
-      ativo: true,
-      ...(nome && {
-        nome: { contains: nome, mode: 'insensitive' },
-      }),
-      ...(tipoId && {
-        tipoId: Number(tipoId),
-      }),
-    },
-    include: {
-      tipo: true,
-    },
-    orderBy: { nome: 'asc' },
+    where: { igrejaId: Number(igrejaId) },
+    include: { tipo: true },
+    orderBy: { id: 'desc' },
   });
 
   return NextResponse.json(servicos);
 }
 
-export async function POST(req: Request) {
-  const body = await req.json();
+export async function POST(request: Request) {
+  const cookieStore = await cookies();
+  const igrejaId = cookieStore.get('igrejaId')?.value;
+
+  if (!igrejaId) {
+    return NextResponse.json({ error: 'Igreja não encontrada na sessão' }, { status: 401 });
+  }
+
+  const body = await request.json();
   const { nome, tipoId, descricao, telefone } = body;
 
   const servico = await prisma.servico.create({
     data: {
       nome,
-      tipo: {
-        connect: { id: Number(tipoId) },
-      },
-      descricao: descricao || null,
+      tipoId,
+      descricao,
       telefone,
+      igrejaId: Number(igrejaId),
     },
-    include: { tipo: true },
   });
 
-  return NextResponse.json(servico);
+  return NextResponse.json(servico, { status: 201 });
 }

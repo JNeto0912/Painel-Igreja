@@ -32,11 +32,29 @@ export default function AdminAvisosPage() {
     carregarAvisos();
   }, []);
 
-  async function carregarAvisos() {
+async function carregarAvisos() {
+  try {
     const res = await fetch('/api/avisos');
-    const data = await res.json();
-    setAvisos(data);
+
+    if (!res.ok) {
+      console.error('Erro ao buscar avisos:', res.status);
+      setAvisos([]);
+      return;
+    }
+
+    const text = await res.text();
+    if (!text) {
+      setAvisos([]);
+      return;
+    }
+
+    const data = JSON.parse(text);
+    setAvisos(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error('Erro ao carregar avisos:', err);
+    setAvisos([]);
   }
+}
 
   function handleImagemChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];

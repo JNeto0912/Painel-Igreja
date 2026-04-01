@@ -1,23 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+
+type Igreja = { id: number; nome: string };
 
 export default function CadastroPage() {
   const [login, setLogin] = useState('');
   const [senha, setSenha] = useState('');
   const [telefone, setTelefone] = useState('');
+  const [igrejas, setIgrejas] = useState<Igreja[]>([]);
+  const [igrejaId, setIgrejaId] = useState<string>('');
   const [enviando, setEnviando] = useState(false);
   const [sucesso, setSucesso] = useState('');
   const [erro, setErro] = useState('');
+
+  useEffect(() => {
+    fetch('/api/igrejas')
+      .then((r) => r.json())
+      .then((data: Igreja[]) => {
+        if (Array.isArray(data)) {
+          setIgrejas(data);
+          if (data.length > 0) setIgrejaId(String(data[0].id));
+        }
+      })
+      .catch(() => setIgrejas([]));
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErro('');
     setSucesso('');
 
-    if (!login.trim() || !senha || !telefone.trim()) {
-      setErro('Preencha todos os campos.');
+    if (!login.trim() || !senha || !telefone.trim() || !igrejaId) {
+      setErro('Preencha todos os campos, incluindo a igreja.');
       return;
     }
 
@@ -31,7 +47,12 @@ export default function CadastroPage() {
       const res = await fetch('/api/cadastro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login, senha, telefone }),
+        body: JSON.stringify({
+          login,
+          senha,
+          telefone,
+          igrejaId: Number(igrejaId),
+        }),
       });
 
       const data = await res.json();
@@ -41,6 +62,7 @@ export default function CadastroPage() {
         setLogin('');
         setSenha('');
         setTelefone('');
+        setIgrejaId(igrejas.length > 0 ? String(igrejas[0].id) : '');
       } else {
         setErro(data.error || 'Erro ao enviar cadastro.');
       }
@@ -99,6 +121,28 @@ export default function CadastroPage() {
               className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="(DDD) 9 9999-9999"
             />
+          </div>
+
+          {/* CAMPO IGREJA */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Igreja *
+            </label>
+            {igrejas.length === 0 ? (
+              <p className="text-xs text-zinc-400">Carregando igrejas...</p>
+            ) : (
+              <select
+                value={igrejaId}
+                onChange={(e) => setIgrejaId(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {igrejas.map((i) => (
+                  <option key={i.id} value={i.id}>
+                    {i.nome}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           {erro && (

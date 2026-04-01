@@ -1,61 +1,82 @@
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { prisma } from '@/lib/prisma';
 
-export async function DELETE(
-  _req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const idNum = Number(id);
-
-    if (isNaN(idNum)) {
-      return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
-    }
-
-    await prisma.membro.delete({ where: { id: idNum } });
-
-    return NextResponse.json({ ok: true });
-  } catch (error) {
-    console.error('Erro ao deletar membro:', error);
-    return NextResponse.json(
-      { error: 'Erro ao deletar membro' },
-      { status: 500 }
-    );
-  }
+interface Params {
+  params: { id: string };
 }
 
-export async function PUT(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { id } = await params;
-    const idNum = Number(id);
+async function getIgrejaId() {
+  const cookieStore = await cookies();
+  const igrejaId = cookieStore.get('igrejaId')?.value;
+  return igrejaId ? Number(igrejaId) : null;
+}
 
-    if (isNaN(idNum)) {
-      return NextResponse.json({ error: 'ID inválido' }, { status: 400 });
-    }
+export async function PUT(request: Request, { params }: Params) {
+  const igrejaId = await getIgrejaId();
+  const id = Number(params.id);
 
-    const body = await req.json();
-    const { nome, dataNascimento, fotoUrl, ativo } = body;
+  if (!igrejaId) {
+    return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 });
+  }
 
-    const membro = await prisma.membro.update({
-      where: { id: idNum },
-      data: {
-        nome,
-        dataNascimento: new Date(dataNascimento),
-        fotoUrl: fotoUrl ?? null,
-        ativo: ativo ?? true,
-      },
-    });
+  const { nome, dataNascimento, fotoUrl, ativo } = await request.json();
 
-    return NextResponse.json(membro);
-  } catch (error) {
-    console.error('Erro ao atualizar membro:', error);
+  if (!nome || !dataNascimento) {
     return NextResponse.json(
-      { error: 'Erro ao atualizar membro' },
-      { status: 500 }
+      { error: 'Nome e data de nascimento são obrigatórios.' },
+      { status: 400 },
     );
   }
+
+  // Garante que o membro pertence à igreja do usuário logado
+  const membroExiste = await prisma.membro.findFirst({
+    where: { id, igrejaId },
+  });
+
+  if (!membroExiste) {
+    return NextResponse.json(
+      { error: 'Membro não encontrado.' },
+      { status: 404 },
+    );
+  }
+
+  const atualizado = await prisma.membro.update({
+    where: { id },
+    data: {
+      nome,
+      dataNascimento: new Date(dataNascimento),
+      fotoUrl: fotoUrl || null,
+      ativo: ativo ?? true,
+    },
+  });
+
+  return NextResponse.json(atualizado);
+}
+
+export async function DELETE(_request: Request, { params }: Params) {
+  const igrejaId = await getIgrejaId();
+  const id = Number(params.id);
+
+  if (!igrejaId) {
+    return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 });
+  }
+
+  // Garante que o membro pertence à igreja do usuário logado
+  const membroExiste = await prisma.membro.findFirst({
+    where: { id, igrejaId },
+  });
+
+  if (!membroExiste) {
+    return NextResponse.json(
+      { error: 'Membro não encontrado.' },
+      { status: 404 },
+    );
+  }
+
+  await prisma.membro.delete({
+    where: { id },
+  });
+
+  return NextResponse.json({ ok: true });
 }

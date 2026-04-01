@@ -31,13 +31,24 @@ export default function ServicosAdminPage() {
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [termoPesquisa, setTermoPesquisa] = useState(''); // Novo estado para o termo de pesquisa
 
-  async function carregar() {
-    const [sRes, tRes] = await Promise.all([
-      fetch('/api/servicos'),
-      fetch('/api/tipos'),
-    ]);
-    setServicos(await sRes.json());
-    setTipos(await tRes.json());
+async function carregar() {
+    try {
+      const [sRes, tRes] = await Promise.all([
+        fetch('/api/servicos'),
+        fetch('/api/tipos'),
+      ]);
+
+      const sDados = await sRes.json();
+      const tDados = await tRes.json();
+
+      // Garante que sempre sejam arrays
+      setServicos(Array.isArray(sDados) ? sDados : []);
+      setTipos(Array.isArray(tDados) ? tDados : []);
+    } catch (e) {
+      console.error('Erro ao carregar serviços/tipos', e);
+      setServicos([]);
+      setTipos([]);
+    }
   }
 
   useEffect(() => {

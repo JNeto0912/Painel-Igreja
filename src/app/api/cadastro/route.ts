@@ -3,11 +3,11 @@ import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 export async function POST(req: Request) {
-  const { login, senha, telefone } = await req.json();
+  const { login, senha, telefone, igrejaId } = await req.json();
 
-  if (!login || !senha || !telefone) {
+  if (!login || !senha || !telefone || !igrejaId) {
     return NextResponse.json(
-      { error: 'Login, senha e telefone são obrigatórios.' },
+      { error: 'Login, senha, telefone e igreja são obrigatórios.' },
       { status: 400 }
     );
   }
@@ -32,11 +32,15 @@ export async function POST(req: Request) {
       telefone: telefone.trim(),
       aprovado: false,
       admin: false,
+      igrejaId: Number(igrejaId), // aqui amarramos o usuário à igreja escolhida
     },
   });
 
   return NextResponse.json(
-    { ok: true, mensagem: 'Cadastro enviado! Aguarde a aprovação do administrador.' },
+    {
+      ok: true,
+      mensagem: 'Cadastro enviado! Aguarde a aprovação do administrador.',
+    },
     { status: 201 }
   );
 }

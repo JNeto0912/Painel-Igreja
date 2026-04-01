@@ -26,12 +26,29 @@ export default function AdminMembrosPage() {
     carregarMembros();
   }, []);
 
-  async function carregarMembros() {
+async function carregarMembros() {
+  try {
     const res = await fetch('/api/membros');
-    const data = await res.json();
-    setMembros(data);
-  }
 
+    if (!res.ok) {
+      console.error('Erro ao buscar membros:', res.status);
+      setMembros([]);
+      return;
+    }
+
+    const text = await res.text(); // lê como texto primeiro
+    if (!text) {
+      setMembros([]);
+      return;
+    }
+
+    const data = JSON.parse(text); // só faz parse se tiver conteúdo
+    setMembros(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error('Erro ao carregar membros:', err);
+    setMembros([]);
+  }
+}
   function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) { setFotoFile(null); setFotoPreview(null); return; }

@@ -1,48 +1,53 @@
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { prisma } from '@/lib/prisma';
+
+async function getIgrejaId() {
+  const cookieStore = await cookies();
+  const igrejaId = cookieStore.get('igrejaId')?.value;
+  return igrejaId ? Number(igrejaId) : null;
+}
 
 export async function GET() {
-  try {
-    const membros = await prisma.membro.findMany({
-      orderBy: { nome: 'asc' },
-    });
-    return NextResponse.json(membros);
-  } catch (error) {
-    console.error('Erro ao buscar membros:', error);
-    return NextResponse.json(
-      { error: 'Erro ao buscar membros' },
-      { status: 500 }
-    );
+  const igrejaId = await getIgrejaId();
+
+  if (!igrejaId) {
+    return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 });
   }
+
+  const membros = await prisma.membro.findMany({
+    where: { igrejaId },
+    orderBy: { nome: 'asc' },
+  });
+
+  return NextResponse.json(membros);
 }
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { nome, dataNascimento, fotoUrl, ativo } = body;
+  const igrejaId = await getIgrejaId();
 
-    if (!nome || !dataNascimento) {
-      return NextResponse.json(
-        { error: 'Nome e data de nascimento são obrigatórios' },
-        { status: 400 }
-      );
-    }
+  if (!igrejaId) {
+    return NextResponse.json({ error: 'Não autorizado.' }, { status: 401 });
+  }
 
-    const membro = await prisma.membro.create({
-      data: {
-        nome,
-        dataNascimento: new Date(dataNascimento),
-        fotoUrl: fotoUrl ?? null,
-        ativo: ativo ?? true,
-      },
-    });
+  const { nome, dataNascimento, fotoUrl, ativo } = await req.json();
 
-    return NextResponse.json(membro, { status: 201 });
-  } catch (error) {
-    console.error('Erro ao criar membro:', error);
+  if (!nome || !dataNascimento) {
     return NextResponse.json(
-      { error: 'Erro ao criar membro' },
-      { status: 500 }
+      { error: 'Nome e data de nascimento são obrigatórios.' },
+      { status: 400 },
     );
   }
+
+  const novo = await prisma.membro.create({
+    data: {
+      nome,
+      dataNascimento: new Date(dataNascimento),
+      fotoUrl: fotoUrl || null,
+      ativo: ativo ?? true,
+      igrejaId,
+    },
+  });
+
+  return NextResponse.json(novo, { status: 201 });
 }

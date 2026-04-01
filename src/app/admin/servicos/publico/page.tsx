@@ -22,13 +22,15 @@ export default function ServicosPublicoPage() {
   const [servicos, setServicos] = useState<Servico[]>([]);
   const [termoPesquisa, setTermoPesquisa] = useState('');
 
-  async function carregar() {
-    const res = await fetch('/api/servicos');
-    const dados: Servico[] = await res.json();
-    // se quiser exibir só ativos:
-    setServicos(dados.filter(s => s.ativo));
+async function carregar() {
+  const res = await fetch('/api/publico/servicos');
+  if (!res.ok) {
+    setServicos([]);
+    return;
   }
-
+  const dados: Servico[] = await res.json();
+  setServicos(dados); // já vem filtrado só com ativo: true
+}
   useEffect(() => {
     carregar();
   }, []);
