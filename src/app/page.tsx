@@ -1,6 +1,5 @@
 import Link from 'next/link';
 
-
 export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-100 flex items-center justify-center px-4 py-10">
@@ -29,7 +28,13 @@ export default function Home() {
               >
                 Gerenciar Membros
               </Link>
+            <Link href="/admin/servicos/publico" className="block text-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition-colors">
+              Ver página pública de serviços
+            </Link>
 
+            <Link href="/admin/voluntarios/publico" className="block text-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-lg transition-colors">
+              Ver página pública de voluntários
+            </Link>
                <Link
                 href="/admin/servicos"
                 className="block text-center bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 rounded-lg transition-colors"
@@ -80,7 +85,7 @@ export default function Home() {
                   Aprovar acessos e definir administradores
                 </span>
               </Link>
-
+ 
               <Link
                 href="/admin/voluntario-areas"
                 className="block text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 rounded-lg transition-colors"
