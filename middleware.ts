@@ -6,9 +6,7 @@ import type { NextRequest } from 'next/server';
 const publicRoutes = [
   '/login',
   '/cadastro',
-  '/quero-ser-voluntario',
-  '/publico/servicos',
-  '/publico/voluntarios',
+
 ];
 
 // Rotas que exigem login (qualquer usuário aprovado)
@@ -25,6 +23,9 @@ const adminOnlyRoutes = [
   '/admin/tipos-servico',
   '/admin/areas-voluntariado',
   '/admin/igrejas',
+  '/quero-ser-voluntario',
+  '/publico/servicos',
+  '/publico/voluntarios',
 ];
 
 export function middleware(request: NextRequest) {
