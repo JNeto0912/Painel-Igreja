@@ -36,7 +36,7 @@ export default async function Home() {
                 Painel da Igreja
               </h1>
               <p className="text-xs text-slate-400">
-                Gerencie avisos, membros e ministérios
+                Gerencie avisos, membros e ministérios v.2
               </p>
             </div>
           </div>

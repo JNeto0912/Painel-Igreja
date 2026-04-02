@@ -187,10 +187,8 @@ function SlideAniversariosSemana({ membros }: { membros: MembroSemana[] }) {
 
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-950 via-purple-900 to-pink-900 px-8 py-10">
-      {/* Balões suaves no fundo */}
       {baloesFundo.map((b, i) => <Balao key={i} emoji={b.emoji} style={b.style} />)}
 
-      {/* Título */}
       <div className="relative z-10 text-center mb-8">
         <p className="text-3xl mb-1">🎂</p>
         <h1 className="text-4xl font-extrabold text-white tracking-wide drop-shadow-lg">
@@ -199,16 +197,17 @@ function SlideAniversariosSemana({ membros }: { membros: MembroSemana[] }) {
         <p className="text-purple-300 text-lg mt-1">Próximos 7 dias</p>
       </div>
 
-      {/* Lista de membros */}
-      <div className="relative z-10 w-full max-w-4xl grid gap-4"
+      <div
+        className="relative z-10 w-full max-w-4xl grid gap-4"
         style={{
-          gridTemplateColumns: membros.length === 1
-            ? '1fr'
-            : membros.length === 2
-            ? '1fr 1fr'
-            : membros.length <= 4
-            ? '1fr 1fr'
-            : '1fr 1fr 1fr',
+          gridTemplateColumns:
+            membros.length === 1
+              ? '1fr'
+              : membros.length === 2
+              ? '1fr 1fr'
+              : membros.length <= 4
+              ? '1fr 1fr'
+              : '1fr 1fr 1fr',
         }}
       >
         {membros.map((m) => {
@@ -222,7 +221,6 @@ function SlideAniversariosSemana({ membros }: { membros: MembroSemana[] }) {
                   : 'bg-white/10 border border-white/20'
               }`}
             >
-              {/* Foto ou emoji */}
               {m.fotoUrl ? (
                 <img
                   src={m.fotoUrl}
@@ -236,16 +234,13 @@ function SlideAniversariosSemana({ membros }: { membros: MembroSemana[] }) {
               ) : (
                 <div
                   className={`rounded-full flex items-center justify-center shrink-0 text-3xl ${
-                    isHoje
-                      ? 'w-16 h-16 bg-yellow-400/40'
-                      : 'w-14 h-14 bg-white/10'
+                    isHoje ? 'w-16 h-16 bg-yellow-400/40' : 'w-14 h-14 bg-white/10'
                   }`}
                 >
                   🎂
                 </div>
               )}
 
-              {/* Nome e data */}
               <div className="flex flex-col min-w-0">
                 <span className={`font-bold truncate ${isHoje ? 'text-yellow-200 text-xl' : 'text-white text-lg'}`}>
                   {m.nome}
@@ -268,38 +263,54 @@ export default function DisplayClient({ slug }: Props) {
   const [slides, setSlides] = useState<Slide[]>([]);
   const [atual, setAtual] = useState(0);
 
+  // Ref para acessar slides e atual dentro do interval sem re-criar o timer
+  const slidesRef = useRef<Slide[]>([]);
+  const atualRef = useRef(0);
+
+  // Mantém as refs sempre atualizadas
+  useEffect(() => {
+    slidesRef.current = slides;
+  }, [slides]);
+
+  useEffect(() => {
+    atualRef.current = atual;
+  }, [atual]);
+
   const fetchSlides = useCallback(async () => {
     try {
       const res = await fetch(`/api/display/${slug}`);
       if (!res.ok) return;
-
       const data = await res.json();
       if (!Array.isArray(data)) return;
 
-      setSlides(data);
+      setSlides(prev => {
+        // Só atualiza se o conteúdo realmente mudou, evitando reset desnecessário
+        const prevStr = JSON.stringify(prev);
+        const nextStr = JSON.stringify(data);
+        if (prevStr === nextStr) return prev;
+        return data;
+      });
     } catch (error) {
       console.error('Erro ao buscar slides:', error);
     }
   }, [slug]);
 
+  // Fetch inicial + polling a cada 60s
   useEffect(() => {
     fetchSlides();
     const interval = setInterval(fetchSlides, INTERVALO_FETCH_MS);
     return () => clearInterval(interval);
   }, [fetchSlides]);
 
+  // Timer de avanço de slide — criado UMA vez, usa ref para ler slides atual
   useEffect(() => {
-    if (slides.length === 0) return;
-    setAtual(0);
-  }, [slides]);
-
-  useEffect(() => {
-    if (slides.length === 0) return;
     const interval = setInterval(() => {
-      setAtual((prev) => (prev + 1) % slides.length);
+      const total = slidesRef.current.length;
+      if (total === 0) return;
+      setAtual(prev => (prev + 1) % total);
     }, INTERVALO_SLIDE_MS);
     return () => clearInterval(interval);
-  }, [slides]);
+  }, []); // <- sem dependências: timer criado apenas uma vez
 
   if (slides.length === 0) {
     return (
@@ -309,7 +320,7 @@ export default function DisplayClient({ slug }: Props) {
     );
   }
 
-  const slide = slides[atual];
+  const slide = slides[atual] ?? slides[0];
 
   return (
     <div className="relative w-screen h-screen bg-black text-white overflow-hidden cursor-none">
@@ -333,7 +344,6 @@ export default function DisplayClient({ slug }: Props) {
         <SlideAniversariosSemana membros={slide.data} />
       )}
 
-      {/* Bolinhas indicadoras */}
       {slides.length > 1 && (
         <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-20">
           {slides.map((_, i) => (
