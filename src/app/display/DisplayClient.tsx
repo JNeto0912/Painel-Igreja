@@ -29,6 +29,7 @@ type Props = {
 };
 
 const INTERVALO_SLIDE_MS = 8000;
+
 const INTERVALO_FETCH_MS = 60000;
 
 const BALOES = ['🎈', '🎉', '🎊', '🎀', '🎁', '✨', '🌟', '💛', '💜', '💙', '❤️', '🧡'];

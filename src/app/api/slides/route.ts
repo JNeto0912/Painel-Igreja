@@ -17,7 +17,7 @@ export async function GET(
 
   if (!igreja || !igreja.ativo) {
     return NextResponse.json(
-      { error: 'Igreja não encontrada.' },
+      { error: 'Igreja não encontrada!' },
       { status: 404 },
     );
   }

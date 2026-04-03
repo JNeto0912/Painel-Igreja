@@ -361,7 +361,7 @@ export default function DisplayClient({ slug }: Props) {
   if (slides.length === 0) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-black text-white text-2xl cursor-none">
-        Nenhum aviso no momento.
+        Nenhum aviso no momento!
       </div>
     );
   }

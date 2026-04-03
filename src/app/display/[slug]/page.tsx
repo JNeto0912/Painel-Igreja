@@ -9,4 +9,5 @@ type Props = {
 export default async function DisplaySlugPage({ params }: Props) {
   const { slug } = await params;
   return <DisplayClient slug={slug} />;
+  
 }
