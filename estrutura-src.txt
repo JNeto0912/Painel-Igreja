@@ -1,0 +1,175 @@
+Listagem de caminhos de pasta para o volume Windows
+O número de série do volume é A67B-A78D
+C:\USERS\NETO\PAINEL-IGREJA\SRC
+¦   proxy.ts
+¦   
++---app
+¦   ¦   favicon.ico
+¦   ¦   globals.css
+¦   ¦   layout.tsx
+¦   ¦   page.tsx
+¦   ¦   
+¦   +---admin
+¦   ¦   ¦   page.tsx
+¦   ¦   ¦   
+¦   ¦   +---avisos
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---igrejas
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---membros
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---servicos
+¦   ¦   ¦   ¦   page.tsx
+¦   ¦   ¦   ¦   
+¦   ¦   ¦   +---publico
+¦   ¦   ¦           page.tsx
+¦   ¦   ¦           
+¦   ¦   +---tipos
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---usuarios
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---voluntario-areas
+¦   ¦   ¦       page.tsx
+¦   ¦   ¦       
+¦   ¦   +---voluntarios
+¦   ¦   ¦   ¦   page.tsx
+¦   ¦   ¦   ¦   
+¦   ¦   ¦   +---publico
+¦   ¦   ¦           page.tsx
+¦   ¦   ¦           
+¦   ¦   +---[slug]
+¦   ¦       +---publico
+¦   ¦           +---servicos
+¦   ¦                   page.tsx
+¦   ¦                   
+¦   +---api
+¦   ¦   +---auth
+¦   ¦   ¦   +---[...nextauth]
+¦   ¦   ¦           route.ts
+¦   ¦   ¦           
+¦   ¦   +---avisos
+¦   ¦   ¦   ¦   route.ts
+¦   ¦   ¦   ¦   
+¦   ¦   ¦   +---[id]
+¦   ¦   ¦           route.ts
+¦   ¦   ¦           
+¦   ¦   +---cadastro
+¦   ¦   ¦       route.ts
+¦   ¦   ¦       
+¦   ¦   +---display
+¦   ¦   ¦   +---[slug]
+¦   ¦   ¦           route.ts
+¦   ¦   ¦           
+¦   ¦   +---igrejas
+¦   ¦   ¦       route.ts
+¦   ¦   ¦       
+¦   ¦   +---login
+¦   ¦   ¦       route.ts
+¦   ¦   ¦       
+¦   ¦   +---logout
+¦   ¦   ¦       route.ts
+¦   ¦   ¦       
+¦   ¦   +---membros
+¦   ¦   ¦   ¦   route.ts
+¦   ¦   ¦   ¦   
+¦   ¦   ¦   +---[id]
+¦   ¦   ¦           route.ts
+¦   ¦   ¦           
+¦   ¦   +---publico
+¦   ¦   ¦   +---membros
+¦   ¦   ¦   ¦       route.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---servicos
+¦   ¦   ¦   ¦       route.ts
+¦   ¦   ¦   ¦       
+¦   ¦   ¦   +---voluntarios
+¦   ¦   ¦           route.ts
+¦   ¦   ¦           
+¦   ¦   +---servicos
+¦   ¦   ¦   ¦   route.ts
+¦   ¦   ¦   ¦   
+¦   ¦   ¦   +---[id]
+¦   ¦   ¦           route.ts
+¦   ¦   ¦           
+¦   ¦   +---setup
+¦   ¦   ¦       route.ts
+¦   ¦   ¦       
+¦   ¦   +---slides
+¦   ¦   ¦       route.ts
+¦   ¦   ¦       
+¦   ¦   +---tipos
+¦   ¦   ¦   ¦   route.ts
+¦   ¦   ¦   ¦   
+¦   ¦   ¦   +---[id]
+¦   ¦   ¦           route.ts
+¦   ¦   ¦           
+¦   ¦   +---upload
+¦   ¦   ¦       route.ts
+¦   ¦   ¦       
+¦   ¦   +---usuarios
+¦   ¦   ¦   ¦   route.ts
+¦   ¦   ¦   ¦   
+¦   ¦   ¦   +---[id]
+¦   ¦   ¦           route.ts
+¦   ¦   ¦           
+¦   ¦   +---voluntario-areas
+¦   ¦   ¦   ¦   route.ts
+¦   ¦   ¦   ¦   
+¦   ¦   ¦   +---[id]
+¦   ¦   ¦           route.ts
+¦   ¦   ¦           
+¦   ¦   +---voluntarios
+¦   ¦       ¦   route.ts
+¦   ¦       ¦   
+¦   ¦       +---[id]
+¦   ¦               route.ts
+¦   ¦               
+¦   +---cadastro
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---display
+¦   ¦   ¦   DisplayClient.tsx
+¦   ¦   ¦   page.tsx
+¦   ¦   ¦   
+¦   ¦   +---[slug]
+¦   ¦           DisplayClient.tsx
+¦   ¦           page.tsx
+¦   ¦           
+¦   +---login
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---servicos
+¦   ¦       page.tsx
+¦   ¦       
+¦   +---voluntarios
+¦   ¦   ¦   page.tsx
+¦   ¦   ¦   
+¦   ¦   +---inscricao
+¦   ¦           page.tsx
+¦   ¦           
+¦   +---[slug]
+¦       +---publico
+¦           +---servicos
+¦           ¦       page.tsx
+¦           ¦       
+¦           +---voluntarios
+¦                   page.tsx
+¦                   
++---components
+¦       BotaoCopiarLink.tsx
+¦       BotaoLogout.tsx
+¦       
++---lib
+        actions.ts
+        auth.ts
+        cloudinary.ts
+        data.ts
+        formaDate.ts
+        parseDate.ts
+        prisma.ts
+        

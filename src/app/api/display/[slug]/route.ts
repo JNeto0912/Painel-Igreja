@@ -19,21 +19,20 @@ export async function GET(
     );
   }
 
-  const hoje = new Date();
-  const diaHoje = hoje.getDate();
-  const mesHoje = hoje.getMonth() + 1;
+  const agora = new Date();
+  const anoHoje = agora.getUTCFullYear();
+  const mesHoje = agora.getUTCMonth() + 1;
+  const diaHoje = agora.getUTCDate();
 
-  // Próximos 7 dias
-  const em7dias = new Date(hoje);
-  em7dias.setDate(hoje.getDate() + 7);
+  const hojeUTC    = Date.UTC(anoHoje, mesHoje - 1, diaHoje);
+  const em7diasUTC = hojeUTC + 7 * 24 * 60 * 60 * 1000;
 
-  // Avisos da igreja dentro do período
   const avisos = await prisma.aviso.findMany({
     where: {
       igrejaId: igreja.id,
       ativo: true,
-      dataInicio: { lte: hoje },
-      dataFim: { gte: hoje },
+      dataInicio: { lte: agora },
+      dataFim:    { gte: agora },
     },
     orderBy: { ordem: 'asc' },
     select: {
@@ -44,7 +43,6 @@ export async function GET(
     },
   });
 
-  // Todos os membros ativos da igreja
   const membros = await prisma.membro.findMany({
     where: {
       igrejaId: igreja.id,
@@ -58,47 +56,32 @@ export async function GET(
     },
   });
 
-  // Aniversariantes de HOJE (slide individual)
-  const aniversariantesHoje = membros.filter((m) => {
-    const data = new Date(m.dataNascimento);
-    return (
-      data.getDate() === diaHoje &&
-      data.getMonth() + 1 === mesHoje
-    );
-  });
-
-  // Aniversariantes dos próximos 7 dias (slide coletivo)
-  // Inclui hoje também
+  // Aniversariantes dos próximos 7 dias (inclui hoje)
   const aniversariantesSemana = membros
     .map((m) => {
-      const data = new Date(m.dataNascimento);
-      const diaMembro = data.getDate();
-      const mesMembro = data.getMonth() + 1;
+      const dn  = new Date(m.dataNascimento);
+      const dia = dn.getUTCDate();
+      const mes = dn.getUTCMonth() + 1;
 
-      // Monta a data de aniversário no ano atual para comparar
-      const anivEsteAno = new Date(hoje.getFullYear(), mesMembro - 1, diaMembro);
+      let anivEsteAnoUTC = Date.UTC(anoHoje, mes - 1, dia);
 
-      // Se já passou este ano, considera o ano que vem
-      if (anivEsteAno < new Date(hoje.getFullYear(), mesHoje - 1, diaHoje)) {
-        anivEsteAno.setFullYear(hoje.getFullYear() + 1);
+      if (anivEsteAnoUTC < hojeUTC) {
+        anivEsteAnoUTC = Date.UTC(anoHoje + 1, mes - 1, dia);
       }
 
-      return { ...m, anivEsteAno };
+      return { ...m, anivEsteAnoUTC };
     })
-    .filter((m) => m.anivEsteAno >= hoje && m.anivEsteAno <= em7dias)
-    .sort((a, b) => a.anivEsteAno.getTime() - b.anivEsteAno.getTime());
+    .filter((m) => m.anivEsteAnoUTC >= hojeUTC && m.anivEsteAnoUTC <= em7diasUTC)
+    .sort((a, b) => a.anivEsteAnoUTC - b.anivEsteAnoUTC);
 
-  // Monta os slides na ordem:
-  // 1. Avisos
-  // 2. Tela coletiva dos próximos 7 dias (se tiver alguém)
-  // 3. Slides individuais de quem faz aniversário HOJE
   const slides = [
+    // Avisos
     ...avisos.map((a) => ({
       tipo: 'aviso' as const,
       data: a,
     })),
 
-    // Slide coletivo (só aparece se tiver alguém nos próximos 7 dias)
+    // ✅ Só o slide coletivo — o frontend injeta os individuais de hoje
     ...(aniversariantesSemana.length > 0
       ? [
           {
@@ -108,20 +91,14 @@ export async function GET(
               nome: m.nome,
               fotoUrl: m.fotoUrl,
               dataNascimento: m.dataNascimento.toISOString(),
-              aniversarioEm: m.anivEsteAno.toISOString(),
+              aniversarioEm: new Date(m.anivEsteAnoUTC).toISOString(),
             })),
           },
         ]
       : []),
 
-    // Slides individuais de hoje
-    ...aniversariantesHoje.map((m) => ({
-      tipo: 'aniversario' as const,
-      data: {
-        ...m,
-        dataNascimento: m.dataNascimento.toISOString(),
-      },
-    })),
+    // ✅ REMOVIDO: slides individuais de hoje
+    // O frontend já cuida disso via expandirSlides()
   ];
 
   return NextResponse.json(slides);

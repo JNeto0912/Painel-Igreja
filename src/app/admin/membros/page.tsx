@@ -10,14 +10,11 @@ type Membro = {
   ativo: boolean;
 };
 
-// Utilitário de data com fuso São Paulo
-function formatarDataBR(data: Date | string) {
-  return new Date(data).toLocaleDateString('pt-BR', {
-    timeZone: 'America/Sao_Paulo',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
+// ✅ Lê apenas a parte YYYY-MM-DD, sem deixar o JS converter fuso horário
+function formatarDataBR(isoString: string) {
+  const somenteData = isoString.split('T')[0];
+  const [ano, mes, dia] = somenteData.split('-').map(Number);
+  return `${String(dia).padStart(2, '0')}/${String(mes).padStart(2, '0')}/${ano}`;
 }
 
 export default function AdminMembrosPage() {

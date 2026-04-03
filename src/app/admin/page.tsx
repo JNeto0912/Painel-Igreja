@@ -15,7 +15,7 @@ export default async function Home() {
 
   // Apenas serviços, voluntários e inscrição usam slug
  // const urlServicosPublico    = slug ? `/servicos/${slug}/publico` : null;
-  const urlServicosPublico    = slug ? '/${slug}/publico/servicos' : null;
+ const urlServicosPublico    = slug ? `/servicos/${slug}/publico` : null;
   const urlVoluntariosPublico = slug ? `/voluntarios/${slug}/publico` : null;
   const urlInscricao          = slug ? `/voluntarios/${slug}/inscricao` : null;
 

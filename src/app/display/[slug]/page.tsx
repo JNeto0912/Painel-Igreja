@@ -3,9 +3,10 @@ import DisplayClient from './DisplayClient';
 export const dynamic = 'force-dynamic';
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
-export default function DisplaySlugPage({ params }: Props) {
-  return <DisplayClient slug={params.slug} />;
+export default async function DisplaySlugPage({ params }: Props) {
+  const { slug } = await params;
+  return <DisplayClient slug={slug} />;
 }
