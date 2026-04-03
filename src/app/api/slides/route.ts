@@ -14,7 +14,7 @@ export async function GET(
 
   if (!igreja || !igreja.ativo) {
     return NextResponse.json(
-      { error: 'Igreja não encontrada.' },
+      { error: 'Comunidade não encontrada.' },
       { status: 404 },
     );
   }
@@ -27,7 +27,7 @@ export async function GET(
   const hojeUTC    = Date.UTC(anoHoje, mesHoje - 1, diaHoje);
   const em7diasUTC = hojeUTC + 7 * 24 * 60 * 60 * 1000;
 
-  const avisos = await prisma.aviso.findMany({
+  const avisos = await prisma.aviso.findMany({ 
     where: {
       igrejaId: igreja.id,
       ativo: true,
