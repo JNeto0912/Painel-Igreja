@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+// ✅ Impede o Next.js de tentar fazer prerender estático desta route
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   _req: Request,
   { params }: { params: { slug: string } },
@@ -14,7 +17,7 @@ export async function GET(
 
   if (!igreja || !igreja.ativo) {
     return NextResponse.json(
-      { error: 'Comunidade não encontrada.' },
+      { error: 'Igreja não encontrada.' },
       { status: 404 },
     );
   }
@@ -27,7 +30,7 @@ export async function GET(
   const hojeUTC    = Date.UTC(anoHoje, mesHoje - 1, diaHoje);
   const em7diasUTC = hojeUTC + 7 * 24 * 60 * 60 * 1000;
 
-  const avisos = await prisma.aviso.findMany({ 
+  const avisos = await prisma.aviso.findMany({
     where: {
       igrejaId: igreja.id,
       ativo: true,
@@ -81,7 +84,7 @@ export async function GET(
       data: a,
     })),
 
-    // ✅ Só o slide coletivo — o frontend injeta os individuais de hoje
+    // Slide coletivo da semana — o frontend injeta os individuais de hoje
     ...(aniversariantesSemana.length > 0
       ? [
           {
@@ -96,9 +99,6 @@ export async function GET(
           },
         ]
       : []),
-
-    // ✅ REMOVIDO: slides individuais de hoje
-    // O frontend já cuida disso via expandirSlides()
   ];
 
   return NextResponse.json(slides);
