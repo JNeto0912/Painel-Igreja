@@ -13,9 +13,11 @@ type Aviso = {
   ativo: boolean;
 };
 
-// Utilitários de data com fuso São Paulo
-function formatarDataHoraBR(data: Date | string) {
-  return new Date(data).toLocaleString('pt-BR', {
+// ─── Helpers de data ──────────────────────────────────────────────────────────
+
+// Exibe data/hora no fuso de São Paulo
+function formatarDataHoraBR(valor: Date | string): string {
+  return new Date(valor).toLocaleString('pt-BR', {
     timeZone: 'America/Sao_Paulo',
     day: '2-digit',
     month: '2-digit',
@@ -25,13 +27,24 @@ function formatarDataHoraBR(data: Date | string) {
   });
 }
 
-// Converte Date/ISO para string "YYYY-MM-DDTHH:mm" para input datetime-local
-function toInputDateTimeLocal(value: Date | string) {
-  const d = new Date(value);
-  const sp = new Date(d.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${sp.getFullYear()}-${pad(sp.getMonth() + 1)}-${pad(sp.getDate())}T${pad(sp.getHours())}:${pad(sp.getMinutes())}`;
+// Converte ISO para "YYYY-MM-DDTHH:mm" respeitando São Paulo
+function toInputDateTimeLocal(valor: Date | string): string {
+  const d = new Date(valor);
+  // Usa Intl para pegar as partes no fuso correto
+  const formatter = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'America/Sao_Paulo',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  // sv-SE usa formato "YYYY-MM-DD HH:mm" — perfeito para datetime-local
+  return formatter.format(d).replace(' ', 'T');
 }
+
+// ─── Componente ───────────────────────────────────────────────────────────────
 
 export default function AdminAvisosPage() {
   const [titulo, setTitulo] = useState('');
@@ -142,7 +155,6 @@ export default function AdminAvisosPage() {
     }
   }
 
-  // Classifica o status do aviso para exibir badge
   function statusAviso(aviso: Aviso) {
     if (!aviso.ativo) return 'inativo';
     const agora = new Date();
@@ -376,6 +388,7 @@ export default function AdminAvisosPage() {
                         </span>
                       </div>
 
+                      {/* ✅ Usa formatarDataHoraBR que já respeita São Paulo */}
                       <p className="text-xs text-slate-400 mt-1">
                         🗓 {formatarDataHoraBR(aviso.dataInicio)} → {formatarDataHoraBR(aviso.dataFim)}
                       </p>
