@@ -75,7 +75,7 @@ function ehHoje(iso: string): boolean {
   return mmdd === `${mesHoje}-${diaHoje}`;
 }
 
-// ─── Expansão de slides ───────────────────────────────────────────────────────
+// ─── Expansão de slides ──────────────────────────────────────────────────────
 
 function expandirSlides(slidesApi: Slide[]): Slide[] {
   const resultado: Slide[] = [];
@@ -171,5 +171,244 @@ function SlideAniversario({ nome, fotoUrl }: { nome: string; fotoUrl: string | n
         animationDuration: `${(1.2 + Math.random() * 1.5).toFixed(2)}s`,
         fontSize: `${2 + Math.random() * 2}rem`,
         opacity: 0.85,
-      }
+      } as React.CSSProperties,
+    }))
+  );
 
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-purple-900 via-pink-800 to-yellow-700">
+      {baloesRef.current.map((b, i) => <Balao key={i} emoji={b.emoji} style={b.style} />)}
+      <Confetes />
+      <div className="relative z-10 flex flex-col items-center gap-6 text-center px-10">
+        {fotoUrl ? (
+          <img
+            src={fotoUrl}
+            alt={nome}
+            className="w-48 h-48 rounded-full object-cover border-4 border-yellow-300 shadow-2xl"
+          />
+        ) : (
+          <div className="w-48 h-48 rounded-full bg-yellow-400 flex items-center justify-center text-7xl shadow-2xl">
+            🎂
+          </div>
+        )}
+        <div className="bg-black/40 backdrop-blur-sm rounded-2xl px-10 py-6">
+          <p className="text-yellow-300 text-2xl font-semibold tracking-widest uppercase mb-2">
+            Hoje é aniversário de
+          </p>
+          <h1 className="text-6xl font-extrabold text-white drop-shadow-lg leading-tight">
+            {nome}
+          </h1>
+          <p className="text-4xl mt-4">🎂 Feliz Aniversário! 🎂</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Slide COLETIVO da semana (estilo “grandão”) ─────────────────────────────
+
+function SlideAniversariosSemana({ membros }: { membros: MembroSemana[] }) {
+  const baloesFundoRef = useRef(
+    Array.from({ length: 12 }, (_, i) => ({
+      emoji: BALOES[i % BALOES.length],
+      style: {
+        left: `${3 + Math.random() * 90}%`,
+        top: `${3 + Math.random() * 85}%`,
+        animationDelay: `${(Math.random() * 2).toFixed(2)}s`,
+        animationDuration: `${(1.5 + Math.random() * 2).toFixed(2)}s`,
+        fontSize: `${1.8 + Math.random() * 1.8}rem`,
+        opacity: 0.25,
+      } as React.CSSProperties,
+    }))
+  );
+
+  const membrosVisiveis = membros.slice(0, 9);
+
+  return (
+    <div className="absolute inset-0 flex flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-purple-900 via-pink-800 to-yellow-700">
+      {baloesFundoRef.current.map((b, i) => (
+        <Balao key={i} emoji={b.emoji} style={b.style} />
+      ))}
+      <Confetes />
+
+      {/* TÍTULO em caixa fosca, estilo aniversário do dia */}
+      <div className="relative z-10 text-center mb-10">
+        <p className="text-6xl mb-3">🎂</p>
+        <div className="bg-black/40 backdrop-blur-sm rounded-2xl px-10 py-5 inline-block">
+          <p className="text-yellow-300 text-3xl font-semibold tracking-widest uppercase mb-1">
+            Aniversariantes da Semana
+          </p>
+          <p className="text-white text-2xl">Próximos 7 dias 🎉</p>
+        </div>
+      </div>
+
+      {/* LISTA */}
+      <div
+        className="relative z-10 w-full max-w-5xl grid gap-5 px-10"
+        style={{
+          gridTemplateColumns:
+            membrosVisiveis.length <= 2
+              ? '1fr'
+              : membrosVisiveis.length <= 4
+              ? '1fr 1fr'
+              : '1fr 1fr 1fr',
+        }}
+      >
+        {membrosVisiveis.map((m) => {
+          const isHoje = ehHoje(m.aniversarioEm);
+          return (
+            <div
+              key={m.id}
+              className={`flex items-center gap-5 rounded-3xl px-6 py-5 backdrop-blur-md shadow-2xl
+                ${
+                  isHoje
+                    ? 'bg-yellow-400/30 border-2 border-yellow-300 shadow-yellow-400/50'
+                    : 'bg-black/40 border border-white/20'
+                }`}
+            >
+              {/* Foto / ícone */}
+              {m.fotoUrl ? (
+                <img
+                  src={m.fotoUrl}
+                  alt={m.nome}
+                  className={`rounded-full object-cover shrink-0 ${
+                    isHoje
+                      ? 'w-28 h-28 border-4 border-yellow-300'
+                      : 'w-24 h-24 border-2 border-white/40'
+                  }`}
+                />
+              ) : (
+                <div
+                  className={`rounded-full flex items-center justify-center shrink-0 ${
+                    isHoje
+                      ? 'w-28 h-28 bg-yellow-400/50 text-6xl'
+                      : 'w-24 h-24 bg-white/15 text-5xl'
+                  }`}
+                >
+                  🎂
+                </div>
+              )}
+
+              {/* Nome e data */}
+              <div className="flex flex-col min-w-0">
+                <span
+                  className={`font-extrabold drop-shadow-lg leading-tight ${
+                    isHoje
+                      ? 'text-yellow-100 text-4xl'
+                      : 'text-white text-3xl'
+                  }`}
+                  style={{
+                    overflowWrap: 'break-word',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {m.nome}
+                </span>
+                <span
+                  className={`mt-2 font-semibold drop-shadow ${
+                    isHoje
+                      ? 'text-yellow-200 text-2xl'
+                      : 'text-purple-100 text-xl'
+                  }`}
+                >
+                  {isHoje ? '🎉 Hoje!' : `🗓 ${formatarData(m.aniversarioEm)}`}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─── Componente principal ─────────────────────────────────────────────────────
+
+export default function DisplayClient({ slug }: Props) {
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [atual, setAtual] = useState(0);
+
+  const slidesRef = useRef<Slide[]>([]);
+  const atualRef = useRef(0);
+
+  useEffect(() => { slidesRef.current = slides; }, [slides]);
+  useEffect(() => { atualRef.current = atual; }, [atual]);
+
+  const fetchSlides = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/display/${slug}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!Array.isArray(data)) return;
+
+      const slidesExpandidos = expandirSlides(data);
+
+      setSlides(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(slidesExpandidos)) return prev;
+        return slidesExpandidos;
+      });
+    } catch (error) {
+      console.error('Erro ao buscar slides:', error);
+    }
+  }, [slug]);
+
+  useEffect(() => {
+    fetchSlides();
+    const interval = setInterval(fetchSlides, INTERVALO_FETCH_MS);
+    return () => clearInterval(interval);
+  }, [fetchSlides]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const total = slidesRef.current.length;
+      if (total === 0) return;
+      setAtual(prev => (prev + 1) % total);
+    }, INTERVALO_SLIDE_MS);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (slides.length === 0) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-black text-white text-2xl cursor-none">
+        Nenhum aviso no momento!
+      </div>
+    );
+  }
+
+  const slide = slides[atual] ?? slides[0];
+
+  return (
+    <div className="fixed inset-0 bg-black text-white cursor-none overflow-hidden">
+      {slide.tipo === 'aviso' && (
+        <img
+          src={slide.data.imagemUrl}
+          alt={slide.data.titulo}
+          className="absolute inset-0 w-full h-full object-contain"
+        />
+      )}
+
+      {slide.tipo === 'aniversario' && (
+        <SlideAniversario nome={slide.data.nome} fotoUrl={slide.data.fotoUrl} />
+      )}
+
+      {slide.tipo === 'aniversarios-semana' && (
+        <SlideAniversariosSemana membros={slide.data} />
+      )}
+
+      {slides.length > 1 && (
+        <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-20">
+          {slides.map((_, i) => (
+            <div
+              key={i}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                i === atual ? 'bg-white w-6' : 'bg-white/40 w-2'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
+      <BarraProgresso key={atual} duracao={INTERVALO_SLIDE_MS} />
+    </div>
+  );
+}
